@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Aprende a exponer bien cualquier foto. Mueve los tres parámetros del triángulo de exposición y entiende en tiempo real cómo afectan tu imagen. Gratis, en español, para principiantes.">
+<meta name="keywords" content="triángulo de exposición, calculadora exposición fotografía, apertura ISO obturador, fotografía principiantes, aprender fotografía español">
+<meta property="og:title" content="Triángulo de exposición — exposicion.foto">
+<meta property="og:description" content="Aprende a exponer bien cualquier foto. Interactivo, gratis, en español.">
+<meta property="og:type" content="website">
+<title>Triángulo de exposición — exposicion.foto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #F7F6F2;
+    --surface:   #EFEDE8;
+    --surface2:  #E8E5DF;
+    --border:    rgba(0,0,0,0.10);
+    --border-md: rgba(0,0,0,0.18);
+    --text:      #1A1A18;
+    --text-2:    #6B6860;
+    --text-3:    #9C9A93;
+    --green:     #1D7A5A;
+    --green-bg:  #D6EFE6;
+    --red:       #C0392B;
+    --red-bg:    #FAE5E3;
+    --amber:     #996B00;
+    --amber-bg:  #FFF0CC;
+    --radius:    10px;
+    --radius-lg: 16px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #141412;
+      --surface:   #1E1D1B;
+      --surface2:  #272522;
+      --border:    rgba(255,255,255,0.09);
+      --border-md: rgba(255,255,255,0.16);
+      --text:      #F0EDE6;
+      --text-2:    #9C9A93;
+      --text-3:    #5C5B57;
+      --green:     #3DBF8A;
+      --green-bg:  #0D2E21;
+      --red:       #E05A4F;
+      --red-bg:    #2E1210;
+      --amber:     #D4A017;
+      --amber-bg:  #2A2000;
+    }
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0 16px;
+  }
+
+  .page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 0 80px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  .logo-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-mark-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+
+  .logo-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: -0.01em;
+  }
+
+  .header-tag {
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 32px;
+  }
+
+  .hero h1 {
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  .hero p {
+    font-size: 14px;
+    color: var(--text-2);
+    margin-bottom: 14px;
+    max-width: 440px;
+  }
+
+  .pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text-3);
+    border: 1px solid var(--border);
+  }
+
+  /* TOOL CARD */
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* MODO TOGGLE */
+  .modo-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .modo-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border-md);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .modo-btn:hover { background: var(--surface2); }
+
+  .modo-btn.active {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+    font-weight: 500;
+  }
+
+  /* PARAMS GRID */
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 480px) {
+    .params-grid { grid-template-columns: 1fr; }
+  }
+
+  .param-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 14px 12px;
+  }
+
+  .param-label {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-3);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .param-value {
+    font-size: 20px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .param-slider {
+    width: 100%;
+    margin-bottom: 10px;
+    accent-color: var(--text);
+    cursor: pointer;
+  }
+
+  .param-desc {
+    font-size: 11.5px;
+    color: var(--text-2);
+    line-height: 1.5;
+    min-height: 34px;
+  }
+
+  /* RESULTADO */
+  .resultado {
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    transition: background .3s;
+  }
+
+  .resultado-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .resultado-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background .3s;
+  }
+
+  .resultado-titulo {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .resultado-detalle {
+    font-size: 12.5px;
+    color: var(--text-2);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+
+  .barra-wrap {
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .barra-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width .35s, background .35s;
+  }
+
+  .barra-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  .barra-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-3);
+  }
+
+  /* MODO ESCENA */
+  .escenas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 380px) {
+    .escenas-grid { grid-template-columns: 1fr; }
+  }
+
+  .escena-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text-2);
+    cursor: pointer;
+    text-align: left;
+    transition: all .15s;
+    line-height: 1.3;
+  }
+
+  .escena-btn:hover {
+    border-color: var(--border-md);
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .escena-btn.active {
+    border-color: var(--green);
+    background: var(--green-bg);
+    color: var(--green);
+    font-weight: 500;
+  }
+
+  .escena-resultado {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+
+  .escena-titulo {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .escena-valores {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .escena-valor {
+    text-align: center;
+  }
+
+  .escena-valor-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .escena-valor-num {
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+  }
+
+  .escena-explicacion {
+    font-size: 12.5px;
+    color: var(--text-2);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+
+  .btn-secundario {
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-md);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-2);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+
+  .btn-secundario:hover { background: var(--surface2); color: var(--text); }
+
+  /* GLOSARIO */
+  .glosario-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    .glosario-grid { grid-template-columns: 1fr; }
+  }
+
+  .glosario-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+
+  .glosario-term {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  .glosario-def {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+
+  /* WAITLIST BANNER */
+  .waitlist-banner {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: var(--surface);
+  }
+
+  .waitlist-texto h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .waitlist-texto p {
+    font-size: 12px;
+    color: var(--text-3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .waitlist-form {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    .waitlist-form { width: 100%; }
+    .waitlist-form input { flex: 1; }
+  }
+
+  .waitlist-input {
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border-md);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    width: 200px;
+    transition: border-color .15s;
+  }
+
+  .waitlist-input::placeholder { color: var(--text-3); }
+  .waitlist-input:focus { border-color: var(--text); }
+
+  .waitlist-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--text);
+    border-radius: var(--radius);
+    background: var(--text);
+    color: var(--bg);
+    cursor: pointer;
+    transition: opacity .15s;
+    white-space: nowrap;
+  }
+
+  .waitlist-btn:hover { opacity: 0.85; }
+
+  .waitlist-ok {
+    display: none;
+    font-size: 13px;
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .footer-copy {
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .footer-next {
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ANIMACIÓN ENTRADA */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .page > * {
+    animation: fadeUp .4s ease both;
+  }
+
+  .page > *:nth-child(1) { animation-delay: .0s; }
+  .page > *:nth-child(2) { animation-delay: .06s; }
+  .page > *:nth-child(3) { animation-delay: .12s; }
+  .page > *:nth-child(4) { animation-delay: .18s; }
+  .page > *:nth-child(5) { animation-delay: .22s; }
+  .page > *:nth-child(6) { animation-delay: .26s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page > * { animation: none; }
+  }
+
+  /* SECTION DIVIDER */
+  .section-label {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="header">
+    <a class="logo" href="/">
+      <div class="logo-mark"><div class="logo-mark-dot"></div></div>
+      <span class="logo-name">exposicion.foto</span>
+    </a>
+    <span class="header-tag">beta</span>
+  </header>
+
+  <section class="hero">
+    <h1>Aprende a exponer<br>bien cualquier foto</h1>
+    <p>Mueve los tres parámetros y entiende en tiempo real cómo afectan tu imagen. Sin tecnicismos, sin registro.</p>
+    <div class="pills">
+      <span class="pill">gratis</span>
+      <span class="pill">en español</span>
+      <span class="pill">para principiantes</span>
+    </div>
+  </section>
+
+  <div class="tool-card">
+    <div class="modo-row">
+      <button class="modo-btn active" id="btn-libre" onclick="setModo('libre')">Modo libre</button>
+      <button class="modo-btn" id="btn-escena" onclick="setModo('escena')">Por situación</button>
+    </div>
+
+    <!-- PANEL LIBRE -->
+    <div id="panel-libre">
+      <div class="params-grid">
+        <div class="param-card">
+          <p class="param-label">Apertura</p>
+          <p class="param-value" id="val-apertura">f/4</p>
+          <input class="param-slider" type="range" min="0" max="8" value="3" step="1" id="sl-apertura" oninput="update()">
+          <p class="param-desc" id="desc-apertura">Entrada de luz moderada. Buena para retratos con fondo desenfocado.</p>
+        </div>
+        <div class="param-card">
+          <p class="param-label">Velocidad</p>
+          <p class="param-value" id="val-velocidad">1/125s</p>
+          <input class="param-slider" type="range" min="0" max="8" value="4" step="1" id="sl-velocidad" oninput="update()">
+          <p class="param-desc" id="desc-velocidad">Congela movimiento normal. Ideal para personas en movimiento lento.</p>
+        </div>
+        <div class="param-card">
+          <p class="param-label">ISO</p>
+          <p class="param-value" id="val-iso">ISO 400</p>
+          <input class="param-slider" type="range" min="0" max="7" value="2" step="1" id="sl-iso" oninput="update()">
+          <p class="param-desc" id="desc-iso">Sensibilidad moderada. Algo de ruido visible en zonas oscuras.</p>
+        </div>
+      </div>
+
+      <div class="resultado" id="resultado-box">
+        <div class="resultado-header">
+          <div class="resultado-dot" id="expo-dot"></div>
+          <span class="resultado-titulo" id="expo-titulo">Exposición correcta</span>
+        </div>
+        <p class="resultado-detalle" id="expo-detalle"></p>
+        <div class="barra-wrap">
+          <div class="barra-fill" id="expo-barra"></div>
+        </div>
+        <div class="barra-labels">
+          <span class="barra-label">subexpuesto</span>
+          <span class="barra-label">correcto</span>
+          <span class="barra-label">sobreexpuesto</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL ESCENA -->
+    <div id="panel-escena" style="display:none">
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:12px">Elige la situación que describes:</p>
+      <div class="escenas-grid">
+        <button class="escena-btn" onclick="aplicarEscena('retrato-dia',this)">Retrato al aire libre</button>
+        <button class="escena-btn" onclick="aplicarEscena('paisaje',this)">Paisaje con mucha luz</button>
+        <button class="escena-btn" onclick="aplicarEscena('interior',this)">Interior con luz artificial</button>
+        <button class="escena-btn" onclick="aplicarEscena('noche',this)">Fotografía nocturna</button>
+        <button class="escena-btn" onclick="aplicarEscena('deporte',this)">Deporte o movimiento</button>
+        <button class="escena-btn" onclick="aplicarEscena('macro',this)">Macro o detalles</button>
+      </div>
+      <div class="escena-resultado" id="escena-resultado" style="display:none">
+        <p class="escena-titulo" id="escena-titulo"></p>
+        <div class="escena-valores">
+          <div class="escena-valor">
+            <p class="escena-valor-label">Apertura</p>
+            <p class="escena-valor-num" id="e-apertura"></p>
+          </div>
+          <div class="escena-valor">
+            <p class="escena-valor-label">Velocidad</p>
+            <p class="escena-valor-num" id="e-velocidad"></p>
+          </div>
+          <div class="escena-valor">
+            <p class="escena-valor-label">ISO</p>
+            <p class="escena-valor-num" id="e-iso"></p>
+          </div>
+        </div>
+        <p class="escena-explicacion" id="escena-explicacion"></p>
+        <button class="btn-secundario" onclick="pasarALibre()">Explorar con estos valores →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOSARIO RÁPIDO -->
+  <p class="section-label">conceptos clave</p>
+  <div class="glosario-grid">
+    <div class="glosario-card">
+      <p class="glosario-term">Apertura</p>
+      <p class="glosario-def">El tamaño del agujero por donde entra la luz. A menor número f/, más luz y más desenfoque de fondo.</p>
+    </div>
+    <div class="glosario-card">
+      <p class="glosario-term">Velocidad de obturación</p>
+      <p class="glosario-def">Cuánto tiempo queda abierto el obturador. Velocidades rápidas congelan el movimiento; lentas lo suavizan.</p>
+    </div>
+    <div class="glosario-card">
+      <p class="glosario-term">ISO</p>
+      <p class="glosario-def">La sensibilidad del sensor a la luz. A mayor ISO, más brillo pero también más ruido en la imagen.</p>
+    </div>
+    <div class="glosario-card">
+      <p class="glosario-term">Triángulo de exposición</p>
+      <p class="glosario-def">El equilibrio entre apertura, velocidad e ISO que determina si una foto queda correctamente expuesta.</p>
+    </div>
+  </div>
+
+  <!-- WAITLIST -->
+  <div class="waitlist-banner">
+    <div class="waitlist-texto">
+      <h3>Más herramientas, pronto.</h3>
+      <p>DOF · balance de blancos · glosario completo</p>
+    </div>
+    <div class="waitlist-form">
+      <input class="waitlist-input" type="email" id="waitlist-email" placeholder="tu@email.com">
+      <button class="waitlist-btn" onclick="subscribir()">Avisar</button>
+      <span class="waitlist-ok" id="waitlist-ok">listo ✓</span>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span class="footer-copy">© 2025 exposicion.foto</span>
+    <span class="footer-next">herramienta 1 de muchas</span>
+  </footer>
+
+</div>
+
+<script>
+const aperturas   = ['f/1.4','f/1.8','f/2','f/2.8','f/4','f/5.6','f/8','f/11','f/16'];
+const velocidades = ['1/15s','1/30s','1/60s','1/125s','1/250s','1/500s','1/1000s','1/2000s','1/4000s'];
+const isos        = ['ISO 100','ISO 200','ISO 400','ISO 800','ISO 1600','ISO 3200','ISO 6400','ISO 12800'];
+
+const descApertura = [
+  'Apertura muy amplia. Entra mucha luz y la profundidad de campo es mínima — el fondo queda muy desenfocado.',
+  'Apertura amplia. Ideal para retratos con bokeh pronunciado cuando la luz es escasa.',
+  'Apertura amplia. Buen equilibrio entre luz captada y desenfoque de fondo.',
+  'Apertura moderada-amplia. Balance entre entrada de luz y profundidad de campo.',
+  'Apertura moderada. Buena nitidez en el plano enfocado con algo de desenfoque de fondo.',
+  'Apertura media. Nitidez extendida, aunque entra menos luz al sensor.',
+  'Apertura cerrada. Gran profundidad de campo, ideal para fotografía de paisaje.',
+  'Apertura muy cerrada. Todo queda en foco, pero puede aparecer difracción.',
+  'Apertura mínima. Máxima profundidad de campo; la calidad puede disminuir por difracción.'
+];
+
+const descVelocidad = [
+  'Muy lenta. Necesitas trípode. Crea efectos de movimiento como trazos de luz o agua sedosa.',
+  'Lenta. Trípode recomendado. El movimiento de objetos o personas saldrá borroso.',
+  'Lenta. Al límite del pulso humano. Útil en interiores con trípode y buena técnica.',
+  'Media. Congela personas quietas o en movimiento muy lento.',
+  'Media. Congela movimiento cotidiano, ideal para fotos de personas caminando.',
+  'Rápida. Congela la mayoría de deportes y situaciones de acción.',
+  'Muy rápida. Congela objetos en movimiento veloz sin rastro de desenfoque.',
+  'Extremadamente rápida. Congela objetos muy rápidos como aves en vuelo.',
+  'Velocidad máxima. Congela prácticamente cualquier tipo de movimiento.'
+];
+
+const descISO = [
+  'Sensibilidad mínima. Imagen limpia, sin ruido. Úsalo siempre que haya suficiente luz.',
+  'Sensibilidad baja. Imagen casi sin ruido. Excelente calidad en condiciones favorables.',
+  'Sensibilidad moderada. Algo de ruido visible en zonas oscuras de la imagen.',
+  'Sensibilidad media-alta. Ruido visible pero aceptable para uso digital o web.',
+  'Alta sensibilidad. Ruido notorio. Útil en interiores o situaciones de poca luz.',
+  'Muy alta sensibilidad. Ruido considerable. Solo cuando no hay otra alternativa.',
+  'Sensibilidad extrema. Ruido muy visible. La calidad de imagen se ve comprometida.',
+  'Sensibilidad máxima. Solo en situaciones de oscuridad extrema.'
+];
+
+const escenas = {
+  'retrato-dia': {
+    titulo: 'Retrato al aire libre (día)',
+    ia: 3, iv: 4, ii: 1,
+    explicacion: 'Apertura abierta para desenfocar el fondo y destacar al sujeto. Velocidad suficiente para congelar movimiento leve. ISO bajo gracias a la luz natural abundante.'
+  },
+  'paisaje': {
+    titulo: 'Paisaje con mucha luz',
+    ia: 6, iv: 5, ii: 0,
+    explicacion: 'Apertura cerrada para tener todo en foco de primer plano a infinito. Velocidad alta gracias a la luz. ISO mínimo para máxima calidad y detalle.'
+  },
+  'interior': {
+    titulo: 'Interior con luz artificial',
+    ia: 2, iv: 3, ii: 3,
+    explicacion: 'Apertura amplia para aprovechar la poca luz disponible. Velocidad media para evitar desenfoque por movimiento. ISO elevado, inevitable en interiores sin flash.'
+  },
+  'noche': {
+    titulo: 'Fotografía nocturna',
+    ia: 0, iv: 1, ii: 5,
+    explicacion: 'Apertura máxima para captar toda la luz posible. Velocidad muy lenta — se requiere trípode para evitar fotos movidas. ISO muy alto, inevitable en condiciones de oscuridad.'
+  },
+  'deporte': {
+    titulo: 'Deporte o movimiento rápido',
+    ia: 2, iv: 6, ii: 4,
+    explicacion: 'Velocidad muy alta para congelar la acción sin rastro de desenfoque. Apertura moderada para tener margen de enfoque. ISO elevado para compensar la velocidad rápida.'
+  },
+  'macro': {
+    titulo: 'Macro o fotografía de detalles',
+    ia: 5, iv: 3, ii: 2,
+    explicacion: 'Apertura media para tener algo más de profundidad de campo en distancias muy cortas. Velocidad media para estabilidad. ISO bajo para máxima calidad y detalle.'
+  }
+};
+
+let escenaActiva = null;
+
+function update() {
+  const ia = parseInt(document.getElementById('sl-apertura').value);
+  const iv = parseInt(document.getElementById('sl-velocidad').value);
+  const ii = parseInt(document.getElementById('sl-iso').value);
+
+  document.getElementById('val-apertura').textContent  = aperturas[ia];
+  document.getElementById('val-velocidad').textContent = velocidades[iv];
+  document.getElementById('val-iso').textContent       = isos[ii];
+  document.getElementById('desc-apertura').textContent  = descApertura[ia];
+  document.getElementById('desc-velocidad').textContent = descVelocidad[iv];
+  document.getElementById('desc-iso').textContent       = descISO[ii];
+
+  const luz = (8 - ia) + (8 - iv) + ii;
+
+  const dot    = document.getElementById('expo-dot');
+  const titulo = document.getElementById('expo-titulo');
+  const detalle = document.getElementById('expo-detalle');
+  const barra  = document.getElementById('expo-barra');
+  const box    = document.getElementById('resultado-box');
+
+  if (luz < 8) {
+    titulo.textContent  = 'Imagen subexpuesta';
+    detalle.textContent = 'La imagen quedará oscura o muy oscura. Prueba abrir más la apertura, bajar la velocidad de obturación o subir el ISO.';
+    dot.style.background   = 'var(--red)';
+    barra.style.background = 'var(--red)';
+    barra.style.width      = Math.round((luz / 24) * 100) + '%';
+    box.style.background   = 'var(--red-bg)';
+  } else if (luz <= 16) {
+    titulo.textContent  = 'Exposición correcta';
+    detalle.textContent = 'Los tres parámetros están bien equilibrados. La imagen tendrá una exposición adecuada para la mayoría de situaciones.';
+    dot.style.background   = 'var(--green)';
+    barra.style.background = 'var(--green)';
+    barra.style.width      = Math.round((luz / 24) * 100) + '%';
+    box.style.background   = 'var(--green-bg)';
+  } else {
+    titulo.textContent  = 'Imagen sobreexpuesta';
+    detalle.textContent = 'La imagen quedará quemada o muy brillante. Prueba cerrar la apertura, aumentar la velocidad de obturación o bajar el ISO.';
+    dot.style.background   = 'var(--amber)';
+    barra.style.background = 'var(--amber)';
+    barra.style.width      = '100%';
+    box.style.background   = 'var(--amber-bg)';
+  }
+}
+
+function aplicarEscena(id, btn) {
+  document.querySelectorAll('.escena-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const e = escenas[id];
+  escenaActiva = e;
+  document.getElementById('escena-titulo').textContent     = e.titulo;
+  document.getElementById('e-apertura').textContent        = aperturas[e.ia];
+  document.getElementById('e-velocidad').textContent       = velocidades[e.iv];
+  document.getElementById('e-iso').textContent             = isos[e.ii];
+  document.getElementById('escena-explicacion').textContent = e.explicacion;
+  document.getElementById('escena-resultado').style.display = 'block';
+}
+
+function pasarALibre() {
+  if (!escenaActiva) return;
+  document.getElementById('sl-apertura').value  = escenaActiva.ia;
+  document.getElementById('sl-velocidad').value = escenaActiva.iv;
+  document.getElementById('sl-iso').value       = escenaActiva.ii;
+  setModo('libre');
+  update();
+}
+
+function setModo(m) {
+  document.getElementById('btn-libre').classList.toggle('active', m === 'libre');
+  document.getElementById('btn-escena').classList.toggle('active', m === 'escena');
+  document.getElementById('panel-libre').style.display  = m === 'libre'  ? 'block' : 'none';
+  document.getElementById('panel-escena').style.display = m === 'escena' ? 'block' : 'none';
+}
+
+function subscribir() {
+  const input = document.getElementById('waitlist-email');
+  if (!input.value || !input.value.includes('@')) {
+    input.focus();
+    return;
+  }
+  input.style.display  = 'none';
+  document.querySelector('.waitlist-btn').style.display = 'none';
+  document.getElementById('waitlist-ok').style.display  = 'inline';
+}
+
+update();
+</script>
+</body>
+</html>
