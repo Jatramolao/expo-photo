@@ -11,24 +11,24 @@
 <title>Triángulo de exposición — exposicion.foto</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lora:wght@400;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:        #0D0D0D;
-    --surface:   #161616;
-    --surface2:  #1F1F1F;
-    --border:    #2A2A2A;
-    --border-hi: #F0F0F0;
-    --accent:    #FFE500;
-    --accent-fg: #0D0D0D;
-    --text:      #F0F0F0;
-    --text-2:    #8A8A8A;
-    --text-3:    #4A4A4A;
-    --red:       #FF2D00;
-    --green:     #00FF85;
-    --amber:     #FFE500;
+    /* Paleta oficial Libraphotos */
+    --bg:        #000000;      /* Negro Puro — 60-70% */
+    --surface:   #0D0D0D;
+    --surface2:  #1A1A1A;
+    --border:    #333333;      /* Gris Oscuro — bordes y divisorias */
+    --border-hi: #FFFFFF;      /* Blanco Técnico — contraste máximo */
+    --accent:    #F7A810;      /* Ámbar Brillante — acentos, hover, iconografía */
+    --accent-fg: #000000;
+    --violet:    #4B0082;      /* Violeta Profundo — momentos de quiebre y premium */
+    --violet-fg: #FFFFFF;
+    --text:      #FFFFFF;      /* Blanco Técnico — texto principal */
+    --text-2:    #666666;      /* Gris Medio — texto secundario y metadata */
+    --text-3:    #CCCCCC;      /* Gris Claro — separadores y elementos sutiles */
     --radius:    0px;
     --radius-lg: 0px;
   }
@@ -42,6 +42,8 @@
     line-height: 1.5;
     min-height: 100vh;
     padding: 0;
+    /* Scroll-snap: arquitectura ANTIGRAVITY */
+    scroll-behavior: auto;
   }
 
   .page {
@@ -67,23 +69,34 @@
     text-decoration: none;
   }
 
-  .logo-bracket {
-    font-family: 'DM Mono', monospace;
-    font-size: 18px;
-    color: var(--accent);
+  /* Monograma LP — especificación oficial Libraphotos */
+  .logo-lp {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.06em;     /* tracking -20 a -30 pts equivalente */
+    color: var(--accent);        /* Ámbar Brillante — variante de acento */
+    text-transform: uppercase;
     line-height: 1;
   }
 
+  .logo-divider {
+    color: var(--border);
+    font-size: 14px;
+    margin: 0 6px;
+  }
+
   .logo-name {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-2);
     letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .header-tag {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     color: var(--text-3);
     letter-spacing: 0.12em;
@@ -99,7 +112,7 @@
   }
 
   .hero-eyebrow {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     color: var(--accent);
     letter-spacing: 0.1em;
@@ -136,7 +149,7 @@
   }
 
   .pill {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     padding: 4px 10px;
@@ -147,7 +160,7 @@
 
   /* SECTION LABEL */
   .section-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     color: var(--text-3);
     text-transform: uppercase;
@@ -182,7 +195,7 @@
   }
 
   .modo-btn {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -191,9 +204,9 @@
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
     background: transparent;
-    color: var(--text-3);
+    color: var(--text-2);
     cursor: pointer;
-    transition: color .15s, border-color .15s;
+    transition: none;
   }
 
   .modo-btn:hover { color: var(--text); }
@@ -220,7 +233,7 @@
     padding: 20px 20px 16px;
     border-right: 2px solid var(--border-hi);
     background: transparent;
-    transition: background .15s, color .15s;
+    transition: none;           /* corte seco — regla ANTIGRAVITY */
     position: relative;
     overflow: hidden;
   }
@@ -235,26 +248,24 @@
     .param-card:last-child { border-bottom: none; }
   }
 
-  .param-card:hover { background: var(--border-hi); }
-
+  /* Hover: ámbar Libraphotos, corte seco sin transición */
+  .param-card:hover { background: var(--accent); }
   .param-card:hover .param-label,
   .param-card:hover .param-value,
-  .param-card:hover .param-desc { color: var(--bg); }
-
-  .param-card:hover .param-slider { accent-color: var(--bg); }
+  .param-card:hover .param-desc { color: var(--accent-fg); }
+  .param-card:hover .param-slider { accent-color: var(--accent-fg); }
 
   .param-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--text-3);
+    color: var(--text-2);
     margin-bottom: 8px;
-    transition: color .15s;
   }
 
   .param-value {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 52px;
     font-weight: 500;
     line-height: 1;
@@ -267,9 +278,11 @@
   .param-desc {
     font-size: 11px;
     color: var(--text-2);
-    line-height: 1.5;
+    font-family: 'Lora', serif;   /* cuerpo descriptivo — manual de marca */
+    font-size: 11px;
+    line-height: 1.6;
     min-height: 48px;
-    transition: color .15s;
+    color: var(--text-2);
   }
 
   /* CUSTOM SLIDER */
@@ -318,9 +331,9 @@
   .resultado {
     border: 2px solid var(--border-hi);
     border-left-width: 6px;
-    border-left-color: var(--text-3);
+    border-left-color: var(--text-2);
     padding: 20px 20px 16px;
-    transition: border-left-color .3s;
+    transition: none;
   }
 
   .resultado-header {
@@ -340,9 +353,10 @@
   }
 
   .resultado-detalle {
-    font-size: 12px;
+    font-family: 'Lora', serif;
+    font-size: 13px;
     color: var(--text-2);
-    line-height: 1.6;
+    line-height: 1.7;
     margin-bottom: 20px;
     max-width: 560px;
   }
@@ -357,7 +371,7 @@
 
   .barra-fill {
     height: 100%;
-    transition: width .35s, background .35s;
+    transition: none;
   }
 
   .barra-labels {
@@ -366,16 +380,16 @@
   }
 
   .barra-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.12em;
-    color: var(--text-3);
+    color: var(--text-2);
     text-transform: uppercase;
   }
 
   /* MODO ESCENA */
   .escenas-intro {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.06em;
     color: var(--text-3);
@@ -401,7 +415,7 @@
 
   .escena-btn {
     padding: 18px 16px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -416,7 +430,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    transition: background .15s, color .15s;
+    transition: none;
   }
 
   .escena-btn:nth-child(3n) { border-right: none; }
@@ -429,9 +443,10 @@
     .escena-btn:nth-last-child(-n+2) { border-bottom: none; }
   }
 
+  /* Hover escena: ámbar corte seco */
   .escena-btn:hover {
-    background: var(--surface2);
-    color: var(--text);
+    background: var(--accent);
+    color: var(--accent-fg);
   }
 
   .escena-btn.active {
@@ -444,11 +459,10 @@
     font-size: 20px;
     display: block;
     color: var(--text-3);
-    transition: color .15s;
     line-height: 1;
   }
 
-  .escena-btn:hover .escena-ico { color: var(--accent); }
+  .escena-btn:hover .escena-ico { color: var(--accent-fg); }
   .escena-btn.active .escena-ico { color: var(--accent-fg); }
 
   .escena-resultado {
@@ -487,7 +501,7 @@
   .escena-valor:last-child { border-right: none; }
 
   .escena-valor-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -496,22 +510,23 @@
   }
 
   .escena-valor-num {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 28px;
     font-weight: 500;
     letter-spacing: -0.03em;
-    color: var(--accent);
+    color: var(--violet);        /* Violeta Profundo — momento premium */
   }
 
   .escena-explicacion {
-    font-size: 12px;
+    font-family: 'Lora', serif;
+    font-size: 13px;
     color: var(--text-2);
-    line-height: 1.6;
+    line-height: 1.7;
     margin-bottom: 16px;
   }
 
   .btn-secundario {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -520,12 +535,13 @@
     background: transparent;
     color: var(--text);
     cursor: pointer;
-    transition: background .15s, color .15s;
+    transition: none;
   }
 
   .btn-secundario:hover {
-    background: var(--text);
-    color: var(--bg);
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-color: var(--accent);
   }
 
   /* GLOSARIO */
@@ -541,14 +557,14 @@
     padding: 20px 24px;
     border-bottom: 1px solid var(--border);
     align-items: start;
-    transition: background .15s;
+    transition: none;
   }
 
   .glosario-card:last-child { border-bottom: none; }
   .glosario-card:hover { background: var(--surface); }
 
   .glosario-term {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -557,9 +573,10 @@
   }
 
   .glosario-def {
+    font-family: 'Lora', serif;
     font-size: 13px;
     color: var(--text-2);
-    line-height: 1.6;
+    line-height: 1.7;
   }
 
   @media (max-width: 500px) {
@@ -569,9 +586,10 @@
     }
   }
 
-  /* WAITLIST BANNER */
+  /* WAITLIST BANNER — Violeta Profundo como momento de quiebre */
   .waitlist-banner {
     border: 2px solid var(--border-hi);
+    border-left: 6px solid var(--violet);
     padding: 40px 32px;
     margin-bottom: 0;
     background: var(--surface);
@@ -596,7 +614,7 @@
   }
 
   .waitlist-texto p {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.08em;
     color: var(--text-3);
@@ -616,7 +634,7 @@
 
   .waitlist-input {
     padding: 12px 16px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
     border: 2px solid var(--border-hi);
     border-right: none;
@@ -625,7 +643,7 @@
     outline: none;
     width: 220px;
     border-radius: 0;
-    transition: border-color .15s;
+    transition: none;
   }
 
   .waitlist-input::placeholder { color: var(--text-3); }
@@ -633,18 +651,19 @@
 
   .waitlist-btn {
     padding: 12px 24px;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     border: 2px solid var(--border-hi);
-    background: var(--text);
-    color: var(--bg);
+    background: var(--violet);   /* Violeta — CTA premium */
+    color: var(--violet-fg);
     cursor: pointer;
     font-weight: 500;
-    transition: background .15s, color .15s, border-color .15s;
+    transition: none;
     white-space: nowrap;
     border-radius: 0;
+    border-color: var(--violet);
   }
 
   .waitlist-btn:hover {
@@ -655,10 +674,10 @@
 
   .waitlist-ok {
     display: none;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.1em;
-    color: var(--green);
+    color: var(--accent);
     padding: 12px 0;
     text-transform: uppercase;
   }
@@ -677,7 +696,7 @@
 
   .footer-copy,
   .footer-next {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     color: var(--text-3);
@@ -727,9 +746,9 @@
 
   <header class="header">
     <a class="logo" href="/">
-      <span class="logo-bracket">[</span>
+      <span class="logo-lp">LP</span>
+      <span class="logo-divider">|</span>
       <span class="logo-name">EXPOSICION.FOTO</span>
-      <span class="logo-bracket">]</span>
     </a>
     <span class="header-tag">BETA / V1</span>
   </header>
@@ -964,21 +983,21 @@ function update() {
   if (luz < 8) {
     titulo.textContent  = 'Imagen subexpuesta';
     detalle.textContent = 'La imagen quedará oscura o muy oscura. Prueba abrir más la apertura, bajar la velocidad de obturación o subir el ISO.';
-    barra.style.background      = '#FF2D00';
+    barra.style.background      = '#666666';  /* Gris Medio — subexpuesto */
     barra.style.width           = Math.round((luz / 24) * 100) + '%';
-    box.style.borderLeftColor   = '#FF2D00';
+    box.style.borderLeftColor   = '#666666';
   } else if (luz <= 16) {
     titulo.textContent  = 'Exposición correcta';
     detalle.textContent = 'Los tres parámetros están bien equilibrados. La imagen tendrá una exposición adecuada para la mayoría de situaciones.';
-    barra.style.background      = '#00FF85';
+    barra.style.background      = '#F7A810';  /* Ámbar Brillante — correcto */
     barra.style.width           = Math.round((luz / 24) * 100) + '%';
-    box.style.borderLeftColor   = '#00FF85';
+    box.style.borderLeftColor   = '#F7A810';
   } else {
     titulo.textContent  = 'Imagen sobreexpuesta';
     detalle.textContent = 'La imagen quedará quemada o muy brillante. Prueba cerrar la apertura, aumentar la velocidad de obturación o bajar el ISO.';
-    barra.style.background      = '#FFE500';
+    barra.style.background      = '#4B0082';  /* Violeta Profundo — quiebre */
     barra.style.width           = '100%';
-    box.style.borderLeftColor   = '#FFE500';
+    box.style.borderLeftColor   = '#4B0082';
   }
 }
 
