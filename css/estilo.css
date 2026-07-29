@@ -11,12 +11,19 @@
   --texto:     #FFFFFF;   /* titulares */
   --cuerpo:    #CCCCCC;   /* cuerpo de texto — 13:1 sobre negro */
   --meta:      #666666;   /* SOLO etiquetas y metadata — 3,66:1, no usar en cuerpo */
+
+  /* Sistema tipográfico de Libraphotos. Mismos roles y misma cadena de
+     respaldo que portafolio-web, para que el ecosistema declare la
+     tipografía de una sola forma. */
+  --font-display: 'Syne', 'Avenir Next Heavy', 'Avenir Next', sans-serif;
+  --font-body:    'Lora', 'Georgia', serif;
+  --font-mono:    'IBM Plex Mono', 'Courier New', Courier, monospace;
 }
 
 html { font-size: 16px; }
 
 body {
-  font-family: 'Syne', system-ui, sans-serif;
+  font-family: var(--font-display);
   background: var(--bg);
   color: var(--cuerpo);
   line-height: 1.5;
@@ -40,12 +47,12 @@ body {
 .logo-lp { font-weight: 800; letter-spacing: -0.03em; color: var(--accent);
            text-transform: uppercase; line-height: 1; }
 .logo-divider { color: var(--border); margin: 0 6px; }
-.logo-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+.logo-name { font-family: var(--font-mono); font-size: 11px;
              color: var(--meta); letter-spacing: 0.08em; text-transform: uppercase; }
 
 .switch {
   display: flex; border: 2px solid var(--border-hi); background: transparent;
-  cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  cursor: pointer; font-family: var(--font-mono); font-size: 10px;
   letter-spacing: 0.1em; transition: none; padding: 0;
 }
 .switch span { padding: 6px 12px; color: var(--meta); }
@@ -61,7 +68,7 @@ body {
 .hero-accent { color: var(--accent); }
 
 .section-label {
-  font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--cuerpo);
+  font-family: var(--font-mono); font-size: 10px; color: var(--cuerpo);
   text-transform: uppercase; letter-spacing: 0.15em;
   padding-bottom: 10px; border-bottom: 2px solid var(--border-hi);
   margin: 32px 0 16px;
@@ -72,7 +79,7 @@ body {
 @media (min-width: 720px) { .escenas { grid-template-columns: repeat(3, 1fr); } }
 
 .escena-btn {
-  padding: 14px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  padding: 14px 12px; font-family: var(--font-mono); font-size: 10px;
   letter-spacing: 0.06em; text-transform: uppercase; text-align: left;
   border: none; border-right: 1px solid var(--border-hi);
   border-bottom: 1px solid var(--border-hi);
@@ -93,10 +100,10 @@ body {
   .control:last-child { border-right: none; }
 }
 
-.control-label { display: block; font-family: 'IBM Plex Mono', monospace;
+.control-label { display: block; font-family: var(--font-mono);
                  font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
                  color: var(--meta); margin-bottom: 6px; }
-.control-valor { display: block; font-family: 'IBM Plex Mono', monospace;
+.control-valor { display: block; font-family: var(--font-mono);
                  font-size: clamp(32px, 9vw, 48px); line-height: 1;
                  letter-spacing: -0.04em; color: var(--texto); margin-bottom: 12px; }
 
@@ -113,23 +120,23 @@ body {
           align-items: center; border: 2px solid var(--border-hi);
           border-top: none; padding: 16px; }
 .optica .control-label { grid-column: 1 / -1; margin-bottom: 0; }
-.optica-valor { font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+.optica-valor { font-family: var(--font-mono); font-size: 13px;
                 color: var(--texto); }
 
 .lectura { border: 2px solid var(--border-hi); border-left-width: 6px;
            padding: 16px; margin-top: 16px; }
 .lectura-veredicto { font-weight: 700; text-transform: uppercase;
                      color: var(--texto); margin-bottom: 8px; }
-.lectura-explicacion { font-family: 'Lora', Georgia, serif; font-size: 14px;
+.lectura-explicacion { font-family: var(--font-body); font-size: 14px;
                        line-height: 1.7; color: var(--cuerpo); }
 .avisos { list-style: none; margin-top: 12px; }
-.avisos li { font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+.avisos li { font-family: var(--font-mono); font-size: 10px;
              letter-spacing: 0.08em; text-transform: uppercase;
              color: var(--accent); padding: 4px 0; }
 
 .footer { margin-top: 48px; padding: 20px 0; border-top: 2px solid var(--border-hi);
           display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-          font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+          font-family: var(--font-mono); font-size: 10px;
           letter-spacing: 0.1em; text-transform: uppercase; color: var(--cuerpo); }
 .footer a { color: var(--accent); }
 
@@ -182,7 +189,7 @@ body {
   background: var(--border-hi); transform: translateX(-50%);
 }
 .fotometro-lectura {
-  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  font-family: var(--font-mono); font-size: 11px;
   letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px;
   color: var(--cuerpo);
 }
@@ -205,14 +212,14 @@ body {
 .equivalencia:hover * { color: var(--accent-fg) !important; }
 
 .equivalencia-vacia { grid-column: 1 / -1; cursor: default;
-  font-family: 'Lora', Georgia, serif; font-size: 14px; line-height: 1.7;
+  font-family: var(--font-body); font-size: 14px; line-height: 1.7;
   color: var(--cuerpo); border-right: none; }
 .equivalencia-vacia:hover { background: transparent; }
 
-.equivalencia-etiqueta { display: block; font-family: 'IBM Plex Mono', monospace;
+.equivalencia-etiqueta { display: block; font-family: var(--font-mono);
   font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--accent); margin-bottom: 8px; }
-.equivalencia-valores { display: block; font-family: 'IBM Plex Mono', monospace;
+.equivalencia-valores { display: block; font-family: var(--font-mono);
   font-size: 15px; color: var(--texto); line-height: 1.6; }
 
 /* GLOSARIO Y FAQ */
@@ -223,9 +230,9 @@ body {
   .contenido-fila { display: grid; grid-template-columns: 200px 1fr; gap: 24px;
                     padding: 20px 24px; align-items: start; }
 }
-.contenido-termino { font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+.contenido-termino { font-family: var(--font-mono); font-size: 11px;
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
   font-weight: 400; margin-bottom: 8px; }
 @media (min-width: 720px) { .contenido-termino { margin-bottom: 0; } }
-.contenido-texto { font-family: 'Lora', Georgia, serif; font-size: 14px;
+.contenido-texto { font-family: var(--font-body); font-size: 14px;
   line-height: 1.7; color: var(--cuerpo); }
