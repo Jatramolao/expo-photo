@@ -36,8 +36,15 @@ export function series(modo) {
     : { aperturas: APERTURAS_STOP,   tiempos: TIEMPOS_STOP,   isos: ISOS_STOP };
 }
 
+/**
+ * El valor pintado viene del estado visual, que pasa por la escala de
+ * stops y vuelve; ese viaje introduce error de coma flotante (5.6 sale
+ * como 5.599999999999999). Se redondea a un decimal, que además da la
+ * precisión correcta para valores intermedios durante una transición.
+ */
 export function formatearApertura(n) {
-  return `f/${n}`;
+  const r = Math.round(n * 10) / 10;
+  return `f/${Number.isInteger(r) ? r : r.toFixed(1)}`;
 }
 
 /**
@@ -45,7 +52,7 @@ export function formatearApertura(n) {
  * caen en una fracción limpia, como decimal de segundo ("0.3s").
  */
 export function formatearTiempo(s) {
-  if (s >= 1) return `${s}s`;
+  if (s >= 1) return `${Math.round(s * 10) / 10}s`;
   const inverso = 1 / s;
   const redondo = Math.round(inverso);
   if (Math.abs(inverso - redondo) < 0.02) return `1/${redondo}`;
@@ -53,5 +60,5 @@ export function formatearTiempo(s) {
 }
 
 export function formatearIso(n) {
-  return `ISO ${n}`;
+  return `ISO ${Math.round(n)}`;
 }

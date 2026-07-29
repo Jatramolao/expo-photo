@@ -236,3 +236,22 @@ body {
 @media (min-width: 720px) { .contenido-termino { margin-bottom: 0; } }
 .contenido-texto { font-family: var(--font-body); font-size: 14px;
   line-height: 1.7; color: var(--cuerpo); }
+
+/* WIDGETS DE MECANISMO */
+/* El número sigue mandando; el dibujo lo acompaña. En móvil no roba
+   altura, que importa porque costó que la foto y los sliders cupieran
+   juntos en pantalla. */
+.control--con-widget { display: grid;
+  grid-template-columns: 1fr auto; grid-template-rows: auto auto auto;
+  column-gap: 12px; align-items: center; }
+.control--con-widget .control-label  { grid-column: 1 / -1; }
+.control--con-widget .control-valor  { grid-column: 1; margin-bottom: 0; }
+.control--con-widget .widget         { grid-column: 2; grid-row: 2; }
+.control--con-widget .control-slider { grid-column: 1 / -1; margin-top: 12px; }
+
+.widget { display: block; overflow: visible; }
+
+/* HISTOGRAMA (solo PRO) */
+.histograma-caja { grid-column: 1 / -1; }
+.histograma { display: block; width: 100%; height: 32px;
+              border: 1px solid var(--border); margin-top: 6px; }
