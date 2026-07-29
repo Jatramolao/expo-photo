@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import {
   evAjustes, delta, veredicto,
   desenfoqueFondo, desenfoqueMovimiento, ruido, brillo, contraste,
-  avisos
+  avisos, equivalencias, calcular
 } from '../js/motor.js';
+import { APERTURAS_STOP, TIEMPOS_STOP, ISOS_STOP } from '../js/escalas.js';
+import { ESCENAS } from '../js/escenas.js';
 
 test('la regla del soleado f/16 da EV 15', () => {
   // f/16 · 1/125 · ISO 100 es la exposición canónica a pleno sol.
@@ -127,4 +129,89 @@ test('el ISO muy alto avisa de pérdida de calidad', () => {
 
 test('una exposición cómoda no dispara ningún aviso', () => {
   assert.deepEqual(avisos({ apertura: 5.6, tiempo: 1/250, iso: 200, focal: 50 }), []);
+});
+
+const SERIES_SIMPLE = {
+  aperturas: APERTURAS_STOP,
+  tiempos:   TIEMPOS_STOP,
+  isos:      ISOS_STOP
+};
+
+test('toda equivalencia devuelta expone correctamente', () => {
+  for (const ev of [15, 12, 11, 8, 5, 3]) {
+    for (const eq of equivalencias(ev, SERIES_SIMPLE)) {
+      const d = delta(ev, eq.apertura, eq.tiempo, eq.iso);
+      assert.ok(Math.abs(d) <= 0.5,
+        `equivalencia "${eq.clave}" en EV ${ev} da delta ${d.toFixed(2)}`);
+    }
+  }
+});
+
+test('la equivalencia de desenfoque abre más que la de nitidez', () => {
+  const res = equivalencias(12, SERIES_SIMPLE);
+  const desenfoque = res.find(e => e.clave === 'desenfoque');
+  const nitidez    = res.find(e => e.clave === 'nitidez');
+  assert.ok(desenfoque, 'falta la equivalencia de desenfoque');
+  assert.ok(nitidez, 'falta la equivalencia de nitidez');
+  assert.ok(desenfoque.apertura < nitidez.apertura,
+    'la de desenfoque debe usar un número f menor');
+});
+
+test('la equivalencia de congelar usa el tiempo más rápido disponible', () => {
+  const res = equivalencias(12, SERIES_SIMPLE);
+  const congelar = res.find(e => e.clave === 'congelar');
+  assert.ok(congelar, 'falta la equivalencia de congelar');
+  for (const otra of res) {
+    assert.ok(congelar.tiempo <= otra.tiempo,
+      'ninguna otra equivalencia debe ser más rápida');
+  }
+});
+
+test('no se repite el triplete que el usuario ya tiene puesto', () => {
+  const actual = { apertura: 2.8, tiempo: 1/500, iso: 100 };
+  const res = equivalencias(12, { ...SERIES_SIMPLE, actual });
+  for (const eq of res) {
+    const igual = eq.apertura === actual.apertura
+               && Math.abs(eq.tiempo - actual.tiempo) < 1e-9
+               && eq.iso === actual.iso;
+    assert.ok(!igual, 'devolvió el triplete actual como alternativa');
+  }
+});
+
+test('cada equivalencia trae una etiqueta legible', () => {
+  for (const eq of equivalencias(12, SERIES_SIMPLE)) {
+    assert.equal(typeof eq.etiqueta, 'string');
+    assert.ok(eq.etiqueta.length > 0);
+  }
+});
+
+test('una escena sin solución posible devuelve lista vacía sin reventar', () => {
+  // EV 40 no es alcanzable con ninguna combinación de las series.
+  assert.deepEqual(equivalencias(40, SERIES_SIMPLE), []);
+});
+
+test('calcular devuelve el resultado completo', () => {
+  const escena = ESCENAS['nublado'];
+  const r = calcular({ ...escena.preset, escena, series: SERIES_SIMPLE });
+  for (const campo of ['ev', 'delta', 'veredicto', 'desenfoqueFondo',
+                       'desenfoqueMovimiento', 'ruido', 'brillo',
+                       'contraste', 'avisos', 'equivalencias']) {
+    assert.ok(r[campo] !== undefined, `falta el campo ${campo}`);
+  }
+});
+
+test('el preset de una escena da veredicto correcto vía calcular', () => {
+  for (const escena of Object.values(ESCENAS)) {
+    const r = calcular({ ...escena.preset, escena, series: SERIES_SIMPLE });
+    assert.equal(r.veredicto, 'correcta',
+      `"${escena.nombreSimple}" dio ${r.veredicto} (delta ${r.delta.toFixed(2)})`);
+  }
+});
+
+test('el arrastre usa el tiempo seguro de la escena', () => {
+  const escena = ESCENAS['calle-noche'];   // tiempoSeguro 1/60
+  const rapido = calcular({ apertura: 2, tiempo: 1/250, iso: 3200, escena, series: SERIES_SIMPLE });
+  const lento  = calcular({ apertura: 2, tiempo: 1/8,   iso: 3200, escena, series: SERIES_SIMPLE });
+  assert.equal(rapido.desenfoqueMovimiento, 0);
+  assert.ok(lento.desenfoqueMovimiento > 0);
 });

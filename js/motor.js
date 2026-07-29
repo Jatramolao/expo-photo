@@ -84,3 +84,90 @@ export function avisos({ apertura, tiempo, iso, focal = 50 }) {
   if (iso >= 6400)        out.push('ruido-alto');
   return out;
 }
+
+const PERFILES = [
+  {
+    clave: 'desenfoque',
+    etiqueta: 'Máximo desenfoque de fondo',
+    // el número f más pequeño; a igualdad, el ISO más bajo
+    orden: (x, y) => x.apertura - y.apertura || x.iso - y.iso
+  },
+  {
+    clave: 'nitidez',
+    etiqueta: 'Todo en foco',
+    orden: (x, y) => y.apertura - x.apertura || x.iso - y.iso
+  },
+  {
+    clave: 'congelar',
+    etiqueta: 'Congelar el movimiento',
+    orden: (x, y) => x.tiempo - y.tiempo || x.iso - y.iso
+  }
+];
+
+/**
+ * Alternativas que también exponen correctamente la misma escena, cada una
+ * con un perfil visual distinto. Es el concepto central de la v3.
+ *
+ * Recorre las tres series por fuerza bruta. En modo simple son ~1.500
+ * combinaciones y en pro ~32.000: barato, pero conviene memoizar el
+ * resultado por escena y modo en la capa de interfaz.
+ */
+export function equivalencias(evEscena, { aperturas, tiempos, isos, actual = null }) {
+  const validas = [];
+  for (const apertura of aperturas) {
+    for (const tiempo of tiempos) {
+      for (const iso of isos) {
+        const d = delta(evEscena, apertura, tiempo, iso);
+        if (Math.abs(d) > 0.5) continue;
+        if (actual
+            && apertura === actual.apertura
+            && Math.abs(tiempo - actual.tiempo) < 1e-9
+            && iso === actual.iso) continue;
+        validas.push({ apertura, tiempo, iso, delta: d });
+      }
+    }
+  }
+  if (validas.length === 0) return [];
+
+  const salida = [];
+  const yaVisto = new Set();
+  for (const perfil of PERFILES) {
+    const mejor = validas.slice().sort(perfil.orden)[0];
+    const huella = `${mejor.apertura}|${mejor.tiempo}|${mejor.iso}`;
+    if (yaVisto.has(huella)) continue;
+    yaVisto.add(huella);
+    salida.push({ ...mejor, clave: perfil.clave, etiqueta: perfil.etiqueta });
+  }
+  return salida;
+}
+
+/**
+ * Punto de entrada único del motor. La interfaz solo necesita llamar a esto.
+ * @param {object} args
+ * @param {number} args.apertura   número f
+ * @param {number} args.tiempo     segundos
+ * @param {number} args.iso        sensibilidad
+ * @param {object} args.escena     una entrada de ESCENAS
+ * @param {number} [args.focal]    mm, por defecto 50
+ * @param {number} [args.distancia] metros al sujeto, por defecto 2
+ * @param {object} args.series     { aperturas, tiempos, isos } del modo activo
+ */
+export function calcular({ apertura, tiempo, iso, escena, focal = 50, distancia = 2, series }) {
+  const ev = evAjustes(apertura, tiempo, iso);
+  const d  = escena.ev - ev;
+  return {
+    ev,
+    delta: d,
+    veredicto: veredicto(d),
+    desenfoqueFondo: desenfoqueFondo(apertura, focal, distancia),
+    desenfoqueMovimiento: desenfoqueMovimiento(tiempo, escena.tiempoSeguro),
+    ruido: ruido(iso),
+    brillo: brillo(d),
+    contraste: contraste(d),
+    avisos: avisos({ apertura, tiempo, iso, focal }),
+    equivalencias: equivalencias(escena.ev, {
+      ...series,
+      actual: { apertura, tiempo, iso }
+    })
+  };
+}
