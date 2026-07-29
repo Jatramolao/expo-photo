@@ -4,6 +4,12 @@
   "outputDirectory": ".",
   "redirects": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "tools.libraphotos.com" }],
+      "destination": "https://exposicion.libraphotos.com/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "tools.libraphotos.com" }],
       "destination": "https://exposicion.libraphotos.com/:path*",
