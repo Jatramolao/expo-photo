@@ -2,16 +2,33 @@
    el primer render, que es justo lo que penaliza la métrica de carga.
    Solo se declaran los cortes que el sitio usa de verdad.
 
-   Nota: Space Grotesk NO tiene peso 800. El manual de marca lo nombra y la
-   v2 lo pedía, pero Google Fonts lo descartaba en silencio y servía el 700.
-   Aquí se declara el peso que existe. */
+   Sistema tipográfico oficial de Libraphotos (MASTER §2):
+     display   → Avenir Black 800+  ·  sustituto libre: Syne
+     metadata  → IBM Plex Mono 400
+     cuerpo    → Lora 400
+
+   Avenir es de licencia Linotype y no está en Google Fonts, así que se usa un
+   equivalente sans-serif de peso ultra-heavy. El resto del ecosistema
+   (portafolio-web, presets-fotos, briefings-clientes, img-nation-studio,
+   poses-spots) ya usa Syne; este proyecto se alinea.
+
+   Syne sí llega al peso 800 que exige el MASTER. Space Grotesk, que usaba la
+   v2, se queda en 700 — no podía cumplir la especificación. */
 
 @font-face {
-  font-family: 'Space Grotesk';
+  font-family: 'Syne';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('../fonts/space-grotesk-700.woff2') format('woff2');
+  src: url('../fonts/syne-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../fonts/syne-800.woff2') format('woff2');
 }
 
 @font-face {

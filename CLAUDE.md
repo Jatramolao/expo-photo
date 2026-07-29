@@ -165,7 +165,8 @@ dos de los seis presets se contradecían con la propia calculadora del sitio.
 
 #### Correcciones de fondo
 - **Contraste:** `--text-2: #666666` era el color de todo el cuerpo de texto y daba 3,66:1, bajo el mínimo AA de 4,5:1. El cuerpo pasa a `#CCCCCC` (13:1); el gris medio queda solo para metadata, que es su función en el manual.
-- **Space Grotesk no tiene peso 800.** El manual lo nombra y la v2 lo pedía; Google Fonts respondía 200 pero descartaba ese peso en silencio y servía el 700. Declarado el peso real.
+- **Tipografía alineada al ecosistema: Space Grotesk → Syne.** El MASTER §2 pide Avenir Black 800+ para display, que es de licencia Linotype y no está en Google Fonts. La v2 usaba Space Grotesk como sustituto, pero **Space Grotesk se queda en el peso 700**: no podía cumplir la especificación, y Google Fonts descartaba el 800 en silencio sin avisar. Syne sí llega a 800, y además es el sustituto que ya usaba el resto del ecosistema (portafolio-web, presets-fotos, briefings-clientes, img-nation-studio, poses-spots). Este proyecto era el único descolgado.
+- **Tracking del monograma corregido.** El MASTER fija −20 a −30 puntos, que son `-0.02` a `-0.03em`. La v2 usaba `-0.06em` comentado como "equivale a −20/−30": las unidades de tracking son milésimas de em, así que eran −60, el doble de lo permitido.
 - Fuentes auto-alojadas: las tres familias desde el CDN bloqueaban el primer render.
 - SEO: canonical, `og:image`, favicon, `robots.txt`, `sitemap.xml`, datos estructurados `WebApplication` y `FAQPage`.
 - Accesibilidad: los sliders anuncian el valor real y no el índice, `aria-live` en el veredicto, foco visible, roles `switch` y `radiogroup`.
