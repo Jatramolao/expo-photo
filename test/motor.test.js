@@ -92,11 +92,59 @@ test('el brillo es neutro con exposición correcta y sube al sobreexponer', () =
   assert.ok(brillo(-2) < 1, 'subexponer debe oscurecer');
 });
 
-test('el contraste cae al alejarse de la exposición correcta', () => {
+test('el contraste es neutro con exposición correcta', () => {
   assert.ok(Math.abs(contraste(0) - 1) < 1e-9);
-  assert.ok(contraste(3) < 1, 'sobreexponer debe aplanar el contraste');
-  assert.ok(contraste(-3) < 1, 'subexponer también');
-  assert.ok(contraste(10) >= 0.35, 'el contraste nunca baja del piso');
+});
+
+test('subexponer sube el contraste para que las sombras se cierren a negro', () => {
+  // contrast() de CSS interpola hacia el gris medio: bajarlo levantaría los
+  // negros y la foto se vería gris lechosa en vez de oscura.
+  assert.ok(contraste(-1) > 1, 'subexponer un stop ya debe cerrar sombras');
+  assert.ok(contraste(-3) > contraste(-1), 'a más subexposición, más cierre');
+  assert.ok(contraste(-20) <= 1.3, 'con un techo, para no cartelizar la imagen');
+});
+
+test('sobreexponer no toca el contraste: lo hace todo el brillo', () => {
+  // brightness() ya levanta las sombras y recorta las luces a blanco. Bajar
+  // el contraste además tiraba los blancos recortados de vuelta al gris.
+  assert.equal(contraste(1), 1);
+  assert.equal(contraste(5), 1);
+});
+
+test('la imagen se aclara de forma monótona al sobreexponer', () => {
+  // Regresión: con la curva anterior, un tono medio bajaba de 0.90 a 0.80
+  // entre +2 y +4 stops, o sea sobreexponer más oscurecía la foto.
+  const pixel = (valor, d) => {
+    const trasBrillo = Math.min(1, valor * brillo(d));
+    return Math.max(0, Math.min(1, (trasBrillo - 0.5) * contraste(d) + 0.5));
+  };
+  for (const tono of [0.15, 0.5]) {
+    for (let d = 0; d < 5; d += 0.5) {
+      assert.ok(pixel(tono, d + 0.5) >= pixel(tono, d) - 1e-9,
+        `el tono ${tono} se oscurece entre Δ=${d} y Δ=${d + 0.5}`);
+    }
+  }
+});
+
+test('la imagen se oscurece de forma monótona al subexponer', () => {
+  const pixel = (valor, d) => {
+    const trasBrillo = Math.min(1, valor * brillo(d));
+    return Math.max(0, Math.min(1, (trasBrillo - 0.5) * contraste(d) + 0.5));
+  };
+  for (const tono of [0.15, 0.5, 0.85]) {
+    for (let d = 0; d > -5; d -= 0.5) {
+      assert.ok(pixel(tono, d - 0.5) <= pixel(tono, d) + 1e-9,
+        `el tono ${tono} se aclara entre Δ=${d} y Δ=${d - 0.5}`);
+    }
+  }
+});
+
+test('las sombras llegan a negro real al subexponer', () => {
+  const sombra = (d) => {
+    const trasBrillo = Math.min(1, 0.15 * brillo(d));
+    return Math.max(0, Math.min(1, (trasBrillo - 0.5) * contraste(d) + 0.5));
+  };
+  assert.equal(sombra(-2), 0, 'a 2 stops de menos, las sombras deben ser negro');
 });
 
 test('la regla recíproca avisa de trepidación', () => {

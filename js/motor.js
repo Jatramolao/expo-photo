@@ -66,11 +66,24 @@ export function brillo(d) {
 
 /**
  * Multiplicador para el filtro CSS contrast().
- * Al alejarse de la exposición correcta el contraste cae, simulando el
- * recorte a blancos quemados y a negros aplastados.
+ *
+ * Es asimétrico a propósito. El filtro contrast() de CSS interpola hacia el
+ * GRIS MEDIO, no hacia el negro: bajarlo levanta los negros. Aplicarlo por
+ * igual en ambos sentidos hacía que una foto subexpuesta se volviera gris
+ * lechosa en vez de irse a negro, que es lo contrario de lo que pasa de
+ * verdad.
+ *
+ * Subexponer cierra las sombras → el contraste SUBE y los negros se aplastan.
+ *
+ * Sobreexponer NO toca el contraste: brightness() por sí solo ya levanta las
+ * sombras y recorta las altas luces a blanco, que es exactamente lo que hace
+ * una foto quemada. Bajar el contraste además tiraba los blancos ya recortados
+ * de vuelta hacia el gris, con lo que a más de 2 stops de sobreexposición la
+ * imagen se oscurecía en vez de quemarse.
  */
 export function contraste(d) {
-  return Math.max(0.35, 1 - Math.abs(d) / 8);
+  if (d >= 0) return 1;
+  return Math.min(1.3, 1 + Math.abs(d) / 10);
 }
 
 /**
