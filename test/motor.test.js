@@ -1,6 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { evAjustes, delta, veredicto } from '../js/motor.js';
+import {
+  evAjustes, delta, veredicto,
+  desenfoqueFondo, desenfoqueMovimiento, ruido, brillo, contraste,
+  avisos
+} from '../js/motor.js';
 
 test('la regla del soleado f/16 da EV 15', () => {
   // f/16 · 1/125 · ISO 100 es la exposición canónica a pleno sol.
@@ -42,4 +46,85 @@ test('los umbrales del veredicto respetan los límites de la spec', () => {
   assert.equal(veredicto(0.51),  'sobreexpuesta');
   assert.equal(veredicto(2),     'sobreexpuesta');
   assert.equal(veredicto(2.01),  'muy-sobreexpuesta');
+});
+
+test('abrir el diafragma aumenta el desenfoque de fondo', () => {
+  const abierto = desenfoqueFondo(1.4, 50, 2);
+  const medio   = desenfoqueFondo(5.6, 50, 2);
+  const cerrado = desenfoqueFondo(22, 50, 2);
+  assert.ok(abierto > medio, 'f/1.4 debe desenfocar más que f/5.6');
+  assert.ok(medio > cerrado, 'f/5.6 debe desenfocar más que f/22');
+  assert.ok(abierto > 15, `f/1.4 debe dar un desenfoque marcado, dio ${abierto}`);
+  assert.equal(cerrado, 0, `f/22 debe dar cero desenfoque, dio ${cerrado}`);
+});
+
+test('un teleobjetivo desenfoca más que un gran angular a la misma apertura', () => {
+  assert.ok(desenfoqueFondo(2.8, 85, 2) > desenfoqueFondo(2.8, 35, 2));
+});
+
+test('acercarse al sujeto aumenta el desenfoque de fondo', () => {
+  assert.ok(desenfoqueFondo(2.8, 50, 1) > desenfoqueFondo(2.8, 50, 4));
+});
+
+test('no hay arrastre si el tiempo congela al sujeto', () => {
+  assert.equal(desenfoqueMovimiento(1 / 250, 1 / 125), 0);
+  assert.equal(desenfoqueMovimiento(1 / 125, 1 / 125), 0);
+});
+
+test('el arrastre crece al bajar la velocidad', () => {
+  const poco  = desenfoqueMovimiento(1 / 60, 1 / 125);
+  const mucho = desenfoqueMovimiento(1 / 15, 1 / 125);
+  assert.ok(poco > 0);
+  assert.ok(mucho > poco);
+});
+
+test('el ruido va de cero en ISO 100 a máximo en ISO 25600', () => {
+  assert.equal(ruido(100), 0);
+  assert.ok(ruido(1600) > 0.2 && ruido(1600) < 0.4);
+  assert.ok(Math.abs(ruido(25600) - 0.6) < 0.01);
+});
+
+test('el brillo es neutro con exposición correcta y sube al sobreexponer', () => {
+  assert.ok(Math.abs(brillo(0) - 1) < 1e-9);
+  assert.ok(brillo(2) > 1, 'sobreexponer debe aclarar');
+  assert.ok(brillo(-2) < 1, 'subexponer debe oscurecer');
+});
+
+test('el contraste cae al alejarse de la exposición correcta', () => {
+  assert.ok(Math.abs(contraste(0) - 1) < 1e-9);
+  assert.ok(contraste(3) < 1, 'sobreexponer debe aplanar el contraste');
+  assert.ok(contraste(-3) < 1, 'subexponer también');
+  assert.ok(contraste(10) >= 0.35, 'el contraste nunca baja del piso');
+});
+
+test('la regla recíproca avisa de trepidación', () => {
+  // A 50 mm, por debajo de 1/50 hay riesgo de foto movida por pulso.
+  assert.ok(avisos({ apertura: 4, tiempo: 1/30, iso: 100, focal: 50 })
+    .includes('trepidacion'));
+  assert.ok(!avisos({ apertura: 4, tiempo: 1/125, iso: 100, focal: 50 })
+    .includes('trepidacion'));
+});
+
+test('la regla recíproca se ajusta a la focal', () => {
+  // A 200 mm, 1/125 ya es lento.
+  assert.ok(avisos({ apertura: 4, tiempo: 1/125, iso: 100, focal: 200 })
+    .includes('trepidacion'));
+});
+
+test('cerrar más allá de f/16 avisa de difracción', () => {
+  assert.ok(avisos({ apertura: 16, tiempo: 1/125, iso: 100, focal: 50 })
+    .includes('difraccion'));
+  assert.ok(!avisos({ apertura: 11, tiempo: 1/125, iso: 100, focal: 50 })
+    .includes('difraccion'));
+});
+
+test('el ISO muy alto avisa de pérdida de calidad', () => {
+  assert.ok(avisos({ apertura: 4, tiempo: 1/125, iso: 12800, focal: 50 })
+    .includes('ruido-alto'));
+  assert.ok(!avisos({ apertura: 4, tiempo: 1/125, iso: 800, focal: 50 })
+    .includes('ruido-alto'));
+});
+
+test('una exposición cómoda no dispara ningún aviso', () => {
+  assert.deepEqual(avisos({ apertura: 5.6, tiempo: 1/250, iso: 200, focal: 50 }), []);
 });
