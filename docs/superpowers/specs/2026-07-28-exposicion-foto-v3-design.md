@@ -214,7 +214,31 @@ El switch vive en el encabezado, siempre visible, y persiste entre visitas en `l
 
 Es fluido en móviles modestos, son pocas líneas y no bloquea el hilo principal. Canvas queda de reserva únicamente si el recorte a blancos quemados no resulta convincente con filtros.
 
-**Insumo requerido de Juan:** por cada escena, **dos archivos** — la foto completa y el sujeto recortado en PNG con alfa. Con dos escenas bien preparadas se puede lanzar; el resto se agregan después editando solo `escenas.js`, sin tocar código.
+**Simplificación declarada.** El modelo de dos capas desenfoca de forma uniforme todo lo que no es el sujeto, incluido lo que está *delante* de él. Ópticamente no es exacto: el desenfoque real depende de la distancia, y el primer plano se degrada de forma distinta al fondo. Se acepta porque a diafragma abierto el primer plano también estaría desenfocado, y porque implementar profundidad de campo por distancia exigiría un mapa de profundidad por escena. Queda anotado como límite conocido, no como omisión.
+
+**Insumo por escena:** **dos archivos** — la foto completa y el sujeto recortado en PNG con alfa.
+
+### 4.4.1 La placa base
+
+La placa base es el punto cero de la app: la imagen sobre la que se simula todo. Debe ser **fotométricamente neutra y estar enfocada de punta a punta**, porque cualquier efecto ya horneado pelea contra la simulación. Si la foto trae grano, el slider de ISO deja de significar algo; si trae el fondo desenfocado de origen, cerrar el diafragma no puede devolverlo a nítido y se pierde la mitad de la lección sobre apertura.
+
+Requisitos:
+
+- Enfoque profundo real (como f/11), sujeto y fondo igualmente nítidos
+- Fondo con **detalle fino y legible a media distancia** — texturas, hojas, radios, juntas. Un fondo oscuro y vacío vuelve el efecto invisible.
+- Luz de día difusa y pareja, exposición neutra, sin viñeta, sin grano, sin virado, sin sombras duras
+- Sujeto despegado del fondo, silueta limpia, pelo recogido (para el recorte con alfa)
+- Vertical 3:4
+
+**Placa vigente:** `img/escenas/20260728_placa-base_v1.png`, generada con la API de Reve mediante `generar_placa.py` (script propio del proyecto; ver §4.4.2). Cumple los cinco requisitos.
+
+Las tres fotos de pasarela que Juan aportó el 2026-07-28 **no sirven como placa base**: están disparadas a diafragma abierto, con el fondo ya deshecho y oscuro. Quedan como set de prueba válido para verificar el resto del pipeline (brillo, recorte a blancos, grano, arrastre), donde sí funcionan bien.
+
+### 4.4.2 Generación e independencia de estudio-reve
+
+`generar_placa.py` es deliberadamente independiente de `estudio-reve/generar.py`. Aquel lleva cocido el ADN visual del estudio —flash duro, grano, paleta 70/25/5, sombras aplastadas—, que es exactamente lo contrario de lo que esta placa necesita. Solo se reutiliza la clave de API, leída desde `../estudio-reve/.env` para no duplicar el secreto.
+
+**Declaración de IA.** La regla de transparencia de Libraphotos exige declarar siempre y explícitamente lo generativo publicado. Mientras la placa base sea generada, el sitio lleva un crédito discreto al pie indicándolo. La alternativa —una fotografía real de Juan disparada a f/11 con fondo con detalle— elimina la necesidad de esa declaración y refuerza la autoridad del sitio, que es de un fotógrafo enseñando fotografía. Queda como mejora deseable sin fecha en el backlog; no bloquea nada.
 
 ### 4.5 Nota sobre ANTIGRAVITY
 
@@ -331,6 +355,9 @@ La v2 pide un correo y lo descarta: `subscribir()` valida que haya una arroba y 
 
 | Insumo | Bloquea | Estado |
 |---|---|---|
-| 2 fotos de retrato con sujeto recortado en PNG con alfa | La previsualización real (se puede desarrollar con placeholders) | Confirmado que existen, falta prepararlas |
-| Fotos para las 4 escenas restantes | Nada — se agregan después sin tocar código | Pendiente |
+| Placa base con enfoque profundo | La previsualización | ✅ Resuelto — `20260728_placa-base_v1.png`, generada con Reve |
+| Recorte del sujeto de la placa base en PNG con alfa | El desenfoque de fondo | Pendiente — se produce con eliminación de fondo sobre la placa vigente |
+| Set de prueba (3 retratos de pasarela de Juan) | Nada | ✅ Aportado 2026-07-28 |
+| Fotografía real de Juan a f/11 con fondo con detalle | Nada — reemplazaría a la placa generada y eliminaría la declaración de IA | Deseable, sin fecha |
+| Placas para las escenas restantes | Nada — se agregan editando solo `escenas.js` | Pendiente |
 | `og:image` | Solo el SEO social | Pendiente |
