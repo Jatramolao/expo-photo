@@ -32,15 +32,19 @@
     <div id="escenas" class="escenas" role="radiogroup" aria-label="Situación de luz"></div>
 
     <p class="section-label">2 · Lo que verías</p>
-    <div class="preview" id="preview">
-      <img id="preview-fondo"  class="preview-capa preview-fondo"  alt="">
-      <img id="preview-sujeto" class="preview-capa preview-sujeto" alt="Previsualización de la fotografía">
-      <div id="preview-grano"  class="preview-capa preview-grano" aria-hidden="true"></div>
-    </div>
+    <!-- El visor queda fijo al desplazarse: hay que poder ver el efecto
+         mientras se mueven los sliders, o la herramienta no enseña nada. -->
+    <div class="visor">
+      <div class="preview" id="preview">
+        <img id="preview-fondo"  class="preview-capa preview-fondo"  alt="">
+        <img id="preview-sujeto" class="preview-capa preview-sujeto" alt="Previsualización de la fotografía">
+        <div id="preview-grano"  class="preview-capa preview-grano" aria-hidden="true"></div>
+      </div>
 
-    <div class="fotometro" id="fotometro">
-      <div class="fotometro-escala"><div class="fotometro-aguja" id="fotometro-aguja"></div></div>
-      <p class="fotometro-lectura" id="fotometro-lectura"></p>
+      <div class="fotometro" id="fotometro">
+        <div class="fotometro-escala"><div class="fotometro-aguja" id="fotometro-aguja"></div></div>
+        <p class="fotometro-lectura" id="fotometro-lectura"></p>
+      </div>
     </div>
 
     <p class="section-label">3 · Tus ajustes</p>
