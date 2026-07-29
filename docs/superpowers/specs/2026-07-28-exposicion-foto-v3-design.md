@@ -240,11 +240,13 @@ Las tres fotos de pasarela que Juan aportó el 2026-07-28 **no sirven como placa
 
 **Declaración de IA.** La regla de transparencia de Libraphotos exige declarar siempre y explícitamente lo generativo publicado. Mientras la placa base sea generada, el sitio lleva un crédito discreto al pie indicándolo. La alternativa —una fotografía real de Juan disparada a f/11 con fondo con detalle— elimina la necesidad de esa declaración y refuerza la autoridad del sitio, que es de un fotógrafo enseñando fotografía. Queda como mejora deseable sin fecha en el backlog; no bloquea nada.
 
-### 4.5 Nota sobre ANTIGRAVITY
+### 4.5 Nota sobre el movimiento
 
-El manual de marca manda `transition: none` (corte seco). Esa regla rige los **estados de interfaz** —hover, navegación, activación— y se mantiene sin excepción.
+**Corrección (jul 2026):** esta sección justificaba originalmente por qué la previsualización podía moverse "sin violar ANTIGRAVITY". La justificación era innecesaria: ANTIGRAVITY venía de un borrador marcado como SUPERSEDED y **quedó eliminada del MASTER**. Ningún proyecto debe aplicarla.
 
-No rige el **render del instrumento**: cuando un slider se mueve y la previsualización responde, eso no es una transición decorativa sino la lectura del aparato. Queda declarado aquí para que no se interprete como una desviación del manual en revisiones futuras.
+La norma vigente es **D14, "el sitio elástico"** (MASTER §4): el movimiento con propósito didáctico o narrativo entra por defecto, y lo único prohibido es el movimiento sin función. Una previsualización que responde al slider no necesitaba permiso — es la lectura del instrumento.
+
+Sigue vigente del MASTER §4: `border-radius: 0`, contraste extremo, hover por debajo de 50 ms, y respetar siempre `prefers-reduced-motion`.
 
 ---
 

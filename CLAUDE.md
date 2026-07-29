@@ -119,9 +119,11 @@
 | Subexpuesto | `#FF2D00` (rojo) | `#666666` Gris | Estado neutro/muted |
 | Sobreexpuesto | `#FFE500` (amarillo) | `#4B0082` Violeta | Momento de quiebre |
 
-#### ANTIGRAVITY (arquitectura de interfaz)
-- `transition: none` en todos los elementos hover — corte seco sin ease functions (regla explícita del manual sección 4)
+#### ⚠️ ANTIGRAVITY (arquitectura de interfaz) — REGLA ELIMINADA
+- `transition: none` en todos los elementos hover — corte seco sin ease functions
 - `scroll-behavior: auto`
+
+> **Nota (jul 2026):** la v2 aplicó estas reglas creyéndolas vigentes, pero venían de `archivo/LIBRAPHOTOS_MEJORADO.md`, un borrador marcado como SUPERSEDED. **ANTIGRAVITY quedó eliminada del MASTER y ningún proyecto debe aplicarla.** La norma vigente es D14, "el sitio elástico": el movimiento con propósito didáctico o narrativo entra por defecto. Se conserva este bloque como registro de lo que hizo la v2, no como especificación a seguir.
 
 ---
 
