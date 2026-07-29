@@ -1,3 +1,5 @@
 .env
 .endpoint_cache
 .DS_Store
+.vercel
+.env*

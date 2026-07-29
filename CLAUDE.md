@@ -1,6 +1,7 @@
 # exposicion.foto — Historial de Proyecto
 
-> Herramienta educativa del ecosistema Libraphotos. Calculadora interactiva del triángulo de exposición fotográfica.
+> Herramienta educativa del ecosistema Libraphotos. Calculadora interactiva del triángulo de exposición.
+> **Producción: https://exposicion.libraphotos.com** (jul 2026). El dominio `exposicion.foto` del nombre original nunca se registró; `tools.libraphotos.com` redirige aquí de forma permanente.
 > Rama de desarrollo activa: `claude/lucid-faraday-9Ev3t`
 
 ---

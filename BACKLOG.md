@@ -17,12 +17,6 @@
 | A-02 | Placas propias por escena | Hoy las seis escenas comparten una sola placa neutra y solo se diferencian por el brillo simulado. Una foto real de noche enseñaría más que una de día oscurecida. | Se añaden editando solo `escenas.js`. No requiere tocar código. |
 | A-03 | Miniaturas en las equivalencias | La spec §3.6 las contempla: cada alternativa mostraría cómo se vería, no solo sus números. Hoy hay que aplicarla para verla. | Requiere renderizar tres previsualizaciones pequeñas en paralelo; ojo con el rendimiento del `blur` en móvil. |
 
-## Decisión pendiente de Juan
-
-| # | Qué | Contexto |
-|---|---|---|
-| P-01 | **El sitio se llama `exposicion.foto` pero vive en `tools.libraphotos.com`** | El dominio `exposicion.foto` nunca se registró (NXDOMAIN). El logo del encabezado, el `<title>` y todo el historial del proyecto lo nombran así. Hay tres salidas: **(a)** registrar `exposicion.foto` y apuntarlo a Vercel, si se quiere una marca propia separable de Libraphotos; **(b)** renombrar el sitio a algo coherente con `tools.libraphotos.com`, asumiendo que es una herramienta de la marca y no una submarca; **(c)** dejarlo como está, que es lo peor de los dos mundos: el visitante llega a un dominio y lee otro nombre. Afecta al posicionamiento: `tools.libraphotos.com` hereda autoridad del dominio principal, un dominio propio partiría de cero. |
-
 ## Ideas, sin aprobar
 
 | # | Qué | Estado |
@@ -46,4 +40,4 @@
 
 - [x] Confirmado: el despliegue sigue sirviendo el sitio como estático con el `package.json` presente. El `vercel.json` funcionó (verificado en producción, 2026-07-29).
 - [ ] Comprobar que Vercel Analytics registra visitas una vez desplegado.
-- [ ] Validar los datos estructurados con la herramienta de resultados enriquecidos de Google sobre `https://tools.libraphotos.com/`.
+- [ ] Validar los datos estructurados con la herramienta de resultados enriquecidos de Google sobre `https://exposicion.libraphotos.com/`.
