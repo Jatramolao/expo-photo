@@ -25,7 +25,10 @@ test('cerrar el diafragma un stop subexpone un stop', () => {
   const abierto = delta(12, 5.6, 1 / 250, 100);
   const cerrado = delta(12, 8, 1 / 250, 100);
   // f/8 deja entrar la mitad de luz que f/5.6, así que delta baja en 1.
-  assert.ok(Math.abs((cerrado - abierto) + 1) < 0.02,
+  // La tolerancia es de 0.05 y no menor porque la serie f está redondeada por
+  // convención: el valor exacto de "f/5.6" es 5.657, así que el salto real a
+  // f/8 es de 1.029 stops. La imprecisión está en la serie, no en el motor.
+  assert.ok(Math.abs((cerrado - abierto) + 1) < 0.05,
     `esperaba una diferencia de -1, obtuve ${cerrado - abierto}`);
 });
 
