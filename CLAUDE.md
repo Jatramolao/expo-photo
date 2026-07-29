@@ -124,16 +124,64 @@
 
 ---
 
-## Pendiente / Próximas iteraciones
+### v3 — Motor correcto y previsualización
+**Rama:** `v3-motor-y-previsualizacion`
+**Fecha:** 28 de julio de 2026
 
-- [ ] Switch de 3 modos: FASHION | MUSIC EVENT | ÁMBAR COLLECTION (arquitectura definida en manual sección 4)
-- [ ] Scroll-snap `y mandatory` para secciones de 100vh
-- [ ] Integración de metadata técnica con overlay tipográfico en IBM Plex Mono (sección B del manual fotográfico)
-- [ ] Calculadora de profundidad de campo (DOF) — mencionada en el waitlist
-- [ ] Balance de blancos — mencionada en el waitlist
-- [ ] Glosario completo — mencionada en el waitlist
-- [ ] Meta tags dinámicos por modo de portafolio
-- [ ] Testing cross-browser: Chrome, Safari, Firefox
+**Motivación:** El motor de exposición de la v2 no calculaba física real. Sumaba
+**índices de array**:
+
+```js
+const luz = (8 - ia) + (8 - iv) + ii;
+```
+
+Dos defectos de raíz. Primero, las escalas no eran equivalentes: ISO y velocidad
+avanzaban un stop por posición, pero la apertura no (`f/1.4 → f/1.8` son ⅔ de
+stop). Segundo, no existía la luz de la escena, así que "correcto" era el rango
+arbitrario `8 ≤ luz ≤ 16` sobre una suma sin unidad física. El resultado visible:
+dos de los seis presets se contradecían con la propia calculadora del sitio.
+
+**Cambios aplicados:**
+
+#### El motor
+- Física real: `EV_ajustes = log₂(N²/t) − log₂(ISO/100)`, y `Δ = EV_escena − EV_ajustes`, medido en **stops**.
+- Validado contra la regla del soleado f/16: da `Δ = 0,03`.
+- Las series pasan a ser valores numéricos reales, con pasos completos y tercios.
+- **Equivalencias:** dado el EV de una escena, genera tripletes alternativos que también exponen correctamente pero con perfiles visuales distintos. Es el concepto que la v2 no tenía.
+- Efectos calculados, no descritos: desenfoque de fondo, arrastre, ruido, brillo y contraste.
+- Avisos de trepidación (regla recíproca), difracción y ruido alto.
+
+#### Arquitectura
+- Los dos modos separados ("Modo libre" / "Por situación") se **fusionan en un flujo único**: se elige la escena, que fija el EV, y se ajusta desde su preset.
+- De un `index.html` de 1.047 líneas a módulos ES nativos, **sin build tools**.
+- **39 pruebas** con `node --test`, incluida la de regresión del bug de los presets.
+
+#### Interfaz
+- **Previsualización** como elemento principal: dos capas (fondo y sujeto recortado con alfa) con filtros CSS en vivo. Sin canvas, sin peticiones externas.
+- El visor es `position: sticky` y su alto está acotado, para que la foto siga a la vista mientras se mueven los sliders. Sin eso, la foto y los controles nunca coinciden en pantalla.
+- **Switch SIMPLE/PRO**: cambia la densidad de información, no solo la redacción — paso de los sliders (9 vs 25 valores de apertura), escala del fotómetro, EV visible, controles de óptica, avisos técnicos y nivel de todos los textos. Persiste en `localStorage`, arranca en SIMPLE.
+- Jerarquía invertida: el instrumento primero, hero de una línea, **móvil primero**.
+- Waitlist eliminado: pedía un correo y lo descartaba.
+
+#### Correcciones de fondo
+- **Contraste:** `--text-2: #666666` era el color de todo el cuerpo de texto y daba 3,66:1, bajo el mínimo AA de 4,5:1. El cuerpo pasa a `#CCCCCC` (13:1); el gris medio queda solo para metadata, que es su función en el manual.
+- **Tipografía alineada al ecosistema: Space Grotesk → Syne.** El MASTER §2 pide Avenir Black 800+ para display, que es de licencia Linotype y no está en Google Fonts. La v2 usaba Space Grotesk como sustituto, pero **Space Grotesk se queda en el peso 700**: no podía cumplir la especificación, y Google Fonts descartaba el 800 en silencio sin avisar. Syne sí llega a 800, y además es el sustituto que ya usaba el resto del ecosistema (portafolio-web, presets-fotos, briefings-clientes, img-nation-studio, poses-spots). Este proyecto era el único descolgado.
+- **Tracking del monograma corregido.** El MASTER fija −20 a −30 puntos, que son `-0.02` a `-0.03em`. La v2 usaba `-0.06em` comentado como "equivale a −20/−30": las unidades de tracking son milésimas de em, así que eran −60, el doble de lo permitido.
+- Fuentes auto-alojadas: las tres familias desde el CDN bloqueaban el primer render.
+- SEO: canonical, `og:image`, favicon, `robots.txt`, `sitemap.xml`, datos estructurados `WebApplication` y `FAQPage`.
+- Accesibilidad: los sliders anuncian el valor real y no el índice, `aria-live` en el veredicto, foco visible, roles `switch` y `radiogroup`.
+
+#### Imagen base
+La previsualización necesita una foto enfocada de punta a punta: solo se puede
+desenfocar, no reenfocar. La placa vigente se generó con la API de Reve
+(`generar_placa.py`) y **se declara como generada con IA en el pie del sitio**.
+Reemplazarla por una fotografía real de Juan es la mejora A-01 del backlog.
+
+---
+
+## Pendiente
+
+Ver [BACKLOG.md](BACKLOG.md). La lista que vivía aquí migró allí en la v3.
 
 ---
 
@@ -141,8 +189,20 @@
 
 | Archivo | Descripción |
 |---|---|
-| `index.html` | Aplicación completa (HTML + CSS + JS) |
-| `CHANGELOG.md` | Este archivo — historial y contexto |
+| `index.html` | Solo estructura |
+| `css/estilo.css` | Todo el estilo |
+| `css/fuentes.css` | Fuentes auto-alojadas |
+| `js/motor.js` | La física. Funciones puras, sin DOM. |
+| `js/escalas.js` | Series de aperturas, tiempos e ISO, y su formateo |
+| `js/escenas.js` | Datos por escena: EV, preset, tiempo seguro |
+| `js/textos.js` | Todo el contenido educativo, en sus dos niveles |
+| `js/ui.js` | Conecta el motor al DOM. Único archivo que toca el DOM. |
+| `test/` | Pruebas del motor y las escalas (`node --test`) |
+| `generar_placa.py` | Genera la placa base con la API de Reve |
+| `docs/superpowers/specs/` | Diseño |
+| `docs/superpowers/plans/` | Plan de implementación |
+| `CLAUDE.md` | Este archivo — historial y contexto |
+| `BACKLOG.md` | Pendientes |
 
 ---
 

@@ -208,7 +208,7 @@ El switch vive en el encabezado, siempre visible, y persiste entre visitas en `l
 **Sin canvas para el grueso del efecto.** Dos imágenes superpuestas —fondo completo y sujeto recortado con transparencia— con filtros CSS aplicados en vivo:
 
 - `blur()` sobre la capa de fondo, según el desenfoque calculado por apertura
-- `brightness()` y `contrast()` sobre ambas capas, según `Δ` (el contraste cae al crecer `|Δ|`, simulando el recorte a blancos y negros)
+- `brightness()` y `contrast()` sobre ambas capas, según `Δ`. **El contraste es asimétrico:** el filtro `contrast()` de CSS interpola hacia el gris medio, no hacia el negro, así que bajarlo levanta los negros. Subexponer sube el contraste para que las sombras se cierren a negro real; sobreexponer no lo toca, porque `brightness()` por sí solo ya levanta las sombras y recorta las luces a blanco.
 - una capa de grano superpuesta cuya opacidad sube con el ISO
 - desenfoque direccional sobre la capa del sujeto cuando el tiempo es lento para la escena
 

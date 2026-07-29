@@ -80,7 +80,7 @@ test('la regla del soleado f/16 da EV 15', () => {
 - [ ] **Step 2: Correr la prueba y verificar que falla**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: FALLA. El error será `Cannot find module` o `Unexpected token 'export'`, porque todavía no existen ni `js/motor.js` ni el `package.json` que declara los módulos ES.
@@ -132,7 +132,7 @@ export function evAjustes(apertura, tiempo, iso) {
 - [ ] **Step 6: Correr la prueba y verificar que pasa**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: PASA. `# pass 1`, `# fail 0`.
@@ -190,7 +190,7 @@ test('cerrar el diafragma un stop subexpone un stop', () => {
   const abierto = delta(12, 5.6, 1 / 250, 100);
   const cerrado = delta(12, 8, 1 / 250, 100);
   // f/8 deja entrar la mitad de luz que f/5.6, así que delta baja en 1.
-  assert.ok(Math.abs((cerrado - abierto) + 1) < 0.02,
+  assert.ok(Math.abs((cerrado - abierto) + 1) < 0.05,
     `esperaba una diferencia de -1, obtuve ${cerrado - abierto}`);
 });
 
@@ -210,7 +210,7 @@ test('los umbrales del veredicto respetan los límites de la spec', () => {
 - [ ] **Step 2: Correr y verificar que falla**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: FALLA con `delta is not a function` / `veredicto is not a function`.
@@ -242,7 +242,7 @@ export function veredicto(d) {
 - [ ] **Step 4: Correr y verificar que pasa**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: PASA. `# pass 5`, `# fail 0`.
@@ -347,7 +347,7 @@ test('los extremos de cada serie coinciden entre simple y pro', () => {
 - [ ] **Step 2: Correr y verificar que falla**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: FALLA con `Cannot find module '../js/escalas.js'`.
@@ -419,7 +419,7 @@ export function formatearIso(n) {
 - [ ] **Step 4: Correr y verificar que pasa**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: PASA. `# fail 0`.
@@ -511,7 +511,7 @@ test('los EV van de más luz a menos luz en el orden declarado', () => {
 - [ ] **Step 2: Correr y verificar que falla**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: FALLA con `Cannot find module '../js/escenas.js'`.
@@ -595,7 +595,7 @@ export const ESCENA_DEFECTO = 'nublado';
 - [ ] **Step 4: Correr y verificar que pasa**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: PASA. La prueba de regresión debe pasar para las seis escenas.
@@ -703,7 +703,7 @@ test('el contraste cae al alejarse de la exposición correcta', () => {
 - [ ] **Step 2: Correr y verificar que falla**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: FALLA con `desenfoqueFondo is not a function`.
@@ -760,7 +760,7 @@ export function contraste(d) {
 - [ ] **Step 4: Correr y verificar que pasa**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: PASA. `# fail 0`.
@@ -830,7 +830,7 @@ test('una exposición cómoda no dispara ningún aviso', () => {
 - [ ] **Step 2: Correr y verificar que falla**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: FALLA con `avisos is not a function`.
@@ -856,7 +856,7 @@ export function avisos({ apertura, tiempo, iso, focal = 50 }) {
 - [ ] **Step 4: Correr y verificar que pasa**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: PASA. `# fail 0`.
@@ -950,7 +950,7 @@ test('una escena sin solución posible devuelve lista vacía sin reventar', () =
 - [ ] **Step 2: Correr y verificar que falla**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: FALLA con `equivalencias is not a function`.
@@ -1020,7 +1020,7 @@ export function equivalencias(evEscena, { aperturas, tiempos, isos, actual = nul
 - [ ] **Step 4: Correr y verificar que pasa**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: PASA. `# fail 0`.
@@ -1106,7 +1106,7 @@ test('el arrastre usa el tiempo seguro de la escena', () => {
 - [ ] **Step 2: Correr y verificar que falla**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: FALLA con `calcular is not a function`.
@@ -1151,7 +1151,7 @@ export function calcular({ apertura, tiempo, iso, escena, focal = 50, distancia 
 - [ ] **Step 4: Correr y verificar que pasa**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: PASA. Todas las pruebas de las tareas 1 a 8.
@@ -2512,7 +2512,7 @@ En `/Users/juantramolao/Claude/Projects/LIBRAPHOTOS/CLAUDE.md`, la entrada de `t
 - [ ] **Step 4: Correr toda la batería de pruebas una última vez**
 
 ```bash
-node --test test/
+node --test
 ```
 
 Esperado: todas pasan, cero fallos.

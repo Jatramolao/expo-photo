@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://exposicion.foto/sitemap.xml
