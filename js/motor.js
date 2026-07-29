@@ -11,3 +11,21 @@
 export function evAjustes(apertura, tiempo, iso) {
   return Math.log2((apertura * apertura) / tiempo) - Math.log2(iso / 100);
 }
+
+/**
+ * Error de exposición en stops.
+ * Positivo = sobreexpuesta (entra más luz de la necesaria).
+ * Negativo = subexpuesta.
+ */
+export function delta(evEscena, apertura, tiempo, iso) {
+  return evEscena - evAjustes(apertura, tiempo, iso);
+}
+
+/** Traduce el error numérico a uno de los cinco veredictos de la spec. */
+export function veredicto(d) {
+  if (d < -2)   return 'muy-subexpuesta';
+  if (d < -0.5) return 'subexpuesta';
+  if (d <= 0.5) return 'correcta';
+  if (d <= 2)   return 'sobreexpuesta';
+  return 'muy-sobreexpuesta';
+}
