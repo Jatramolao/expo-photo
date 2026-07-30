@@ -59,3 +59,17 @@ test('los extremos de cada serie coinciden entre simple y pro', () => {
     assert.equal(pro[clave].at(-1), simple[clave].at(-1), `último valor de ${clave}`);
   }
 });
+
+test('el formateo aguanta el error de coma flotante del estado visual', () => {
+  // El valor pintado viaja a la escala de stops y vuelve; ese viaje
+  // convierte 5.6 en 5.599999999999999. No debe llegar así a la pantalla.
+  assert.equal(formatearApertura(5.599999999999999), 'f/5.6');
+  assert.equal(formatearApertura(7.999999999999998), 'f/8');
+  assert.equal(formatearIso(799.9999999999999), 'ISO 800');
+  assert.equal(formatearTiempo(2.0000000000000004), '2s');
+});
+
+test('los valores intermedios de una transición se muestran con un decimal', () => {
+  assert.equal(formatearApertura(3.7123), 'f/3.7');
+  assert.equal(formatearIso(1234.5), 'ISO 1235');
+});

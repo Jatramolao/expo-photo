@@ -2,6 +2,18 @@ import { calcular } from './motor.js';
 import { series, formatearApertura, formatearTiempo, formatearIso } from './escalas.js';
 import { ESCENAS, ESCENA_DEFECTO, PLACA_BASE, RECORTE_BASE } from './escenas.js';
 import { explicacion, textoAviso, GLOSARIO, FAQ } from './textos.js';
+import { transformarHistograma } from './geometria.js';
+import {
+  crearDiafragma, actualizarDiafragma,
+  crearCortinilla, dispararCortinilla,
+  crearSenal, actualizarSenal,
+  crearHistograma, actualizarHistograma, muestrearHistograma
+} from './widgets.js';
+import {
+  crearEstadoVisual, valoresVisuales, saltarA, transicionarA,
+  moverAguja, entrada
+} from './motion.js';
+import { deHash, escribirHash } from './enlace.js';
 
 const estado = {
   modo: 'simple',
@@ -15,6 +27,12 @@ const estado = {
 
 const CLAVE_MODO = 'exposicion-foto:modo';
 
+// Lo que se está pintando ahora, que puede ir por detrás del estado real
+// mientras dura una transición. Se rellena en iniciar().
+let visual = null;
+const widgets = {};
+let histogramaBase = null;
+
 const $ = (id) => document.getElementById(id);
 
 /**
@@ -27,7 +45,7 @@ function masCercano(arr, valor) {
     Math.abs(x - valor) < Math.abs(arr[mejor] - valor) ? i : mejor, 0);
 }
 
-/** Los valores actuales, resueltos desde los índices de slider. */
+/** Los valores objetivo, resueltos desde los índices de slider. */
 function valores() {
   const s = series(estado.modo);
   return {
@@ -35,6 +53,15 @@ function valores() {
     tiempo:   s.tiempos[estado.iTiempo],
     iso:      s.isos[estado.iIso]
   };
+}
+
+/**
+ * Los valores que hay que PINTAR. Durante una transición van por detrás de
+ * los objetivo; el resto del tiempo coinciden. Separar ambos es lo que
+ * hace posible animar sin tocar las funciones de pintado.
+ */
+function valoresPintados() {
+  return visual ? valoresVisuales(visual) : valores();
 }
 
 /** Coloca los sliders en el triplete dado, en la serie del modo activo. */
@@ -65,15 +92,46 @@ function pintarEscenas() {
     btn.textContent = estado.modo === 'pro'
       ? `${e.nombrePro} · EV ${e.ev}`
       : e.nombreSimple;
-    btn.addEventListener('click', () => {
-      estado.escena = clave;
-      aplicarPreset();
-      pintarEscenas();
-      configurarSliders();
-      render();
-    });
+    btn.addEventListener('click', () => seleccionarEscena(clave));
+    btn.addEventListener('keydown', (ev) => navegarEscenas(ev, clave));
     cont.appendChild(btn);
   }
+}
+
+function seleccionarEscena(clave, { enfocar = false } = {}) {
+  estado.escena = clave;
+  aplicarPreset();
+  pintarEscenas();
+  configurarSliders();
+  irA(valores(), 500);
+  if (enfocar) {
+    const activa = document.querySelector('.escena-btn[aria-checked="true"]');
+    if (activa) activa.focus();
+  }
+}
+
+/**
+ * Patrón radiogroup completo (WAI-ARIA): las flechas mueven la selección y
+ * la activan, Home y End van a los extremos.
+ *
+ * Sin esto, role="radio" + tabindex="-1" en las no seleccionadas deja el
+ * selector COMPLETAMENTE inaccesible por teclado: solo se alcanza la escena
+ * activa y no hay forma de cambiar. Es el defecto que introdujo la v3.
+ */
+function navegarEscenas(ev, claveActual) {
+  const claves = Object.keys(ESCENAS);
+  const i = claves.indexOf(claveActual);
+  let destino = null;
+
+  switch (ev.key) {
+    case 'ArrowRight': case 'ArrowDown': destino = (i + 1) % claves.length; break;
+    case 'ArrowLeft':  case 'ArrowUp':   destino = (i - 1 + claves.length) % claves.length; break;
+    case 'Home':                          destino = 0; break;
+    case 'End':                           destino = claves.length - 1; break;
+    default: return;
+  }
+  ev.preventDefault();
+  seleccionarEscena(claves[destino], { enfocar: true });
 }
 
 function configurarSliders() {
@@ -122,10 +180,10 @@ const PALABRAS = {
   'muy-sobreexpuesta': 'Muy quemada'
 };
 
-function pintarFotometro(r) {
+function pintarFotometro(r, animar = false) {
   const acotado = Math.max(-3, Math.min(3, r.delta));
   const porcentaje = ((acotado + 3) / 6) * 100;
-  $('fotometro-aguja').style.left = `${porcentaje}%`;
+  moverAguja($('fotometro-aguja'), porcentaje, animar);
   $('fotometro').dataset.veredicto = r.veredicto;
   $('fotometro-lectura').textContent = estado.modo === 'pro'
     ? `${r.delta > 0 ? '+' : ''}${r.delta.toFixed(1)} EV · ${PALABRAS[r.veredicto]}`
@@ -186,7 +244,9 @@ function pintarEquivalencias(r) {
 function aplicarEquivalencia(eq) {
   colocarEn(eq);
   configurarSliders();
-  render();
+  // La transición ES la lección: el desenfoque y los números viajan
+  // mientras el brillo se mantiene clavado.
+  irA(valores(), 700);
 }
 
 function pintarContenido() {
@@ -224,8 +284,8 @@ function pintarContenido() {
 
 // --- Render y estado ----------------------------------------------------
 
-function render() {
-  const v = valores();
+function render({ animarAguja = false } = {}) {
+  const v = valoresPintados();
   const escena = ESCENAS[estado.escena];
   const r = calcular({
     ...v, escena,
@@ -244,9 +304,20 @@ function render() {
   $('sl-iso').setAttribute('aria-valuetext',      formatearIso(v.iso));
 
   pintarPreview(r);
-  pintarFotometro(r);
+  pintarFotometro(r, animarAguja);
   pintarLectura(r);
   pintarEquivalencias(r);
+  pintarWidgets(v, r);
+  escribirHash({ ...valores(), escena: estado.escena, modo: estado.modo });
+}
+
+function pintarWidgets(v, r) {
+  if (widgets.diafragma) actualizarDiafragma(widgets.diafragma, v.apertura);
+  if (widgets.senal)     actualizarSenal(widgets.senal, v.iso);
+  if (widgets.histograma && histogramaBase) {
+    actualizarHistograma(widgets.histograma,
+      transformarHistograma(histogramaBase, { brillo: r.brillo, contraste: r.contraste }));
+  }
 }
 
 function cambiarModo(nuevo) {
@@ -284,9 +355,20 @@ function conectar() {
   for (const [id, campo] of pares) {
     $(id).addEventListener('input', (ev) => {
       estado[campo] = parseInt(ev.target.value, 10);
-      render();
+      // El arrastre NO se anima: tiene que seguir al dedo. Interponer un
+      // tween aquí se siente como lag, no como suavidad.
+      saltarA(visual, valores(), () => render());
+      if (campo === 'iTiempo') dispararCortinilla(widgets.cortinilla, valores().tiempo, window.gsap);
     });
   }
+}
+
+/** Cambio discreto: se anima, porque el recorrido es lo que enseña. */
+function irA(destino, ms) {
+  transicionarA(visual, destino, () => render(), ms);
+  moverAguja($('fotometro-aguja'),
+    ((Math.max(-3, Math.min(3, 0)) + 3) / 6) * 100, false);
+  dispararCortinilla(widgets.cortinilla, destino.tiempo, window.gsap);
 }
 
 function conectarOptica() {
@@ -319,17 +401,88 @@ function inyectarFaqEstructurada() {
   document.head.appendChild(s);
 }
 
+/** Monta los tres widgets dentro de su tarjeta y el histograma en óptica. */
+function montarWidgets() {
+  const pares = [
+    ['sl-apertura', 'diafragma', crearDiafragma],
+    ['sl-tiempo',   'cortinilla', crearCortinilla],
+    ['sl-iso',      'senal',     crearSenal]
+  ];
+  for (const [idSlider, nombre, crear] of pares) {
+    const tarjeta = $(idSlider).closest('.control');
+    const el = crear();
+    widgets[nombre] = el;
+    tarjeta.querySelector('.control-valor').insertAdjacentElement('afterend', el);
+    tarjeta.classList.add('control--con-widget');
+  }
+
+  const caja = document.createElement('div');
+  caja.className = 'histograma-caja';
+  caja.innerHTML = '<span class="control-label">Histograma</span>';
+  widgets.histograma = crearHistograma();
+  caja.appendChild(widgets.histograma);
+  $('optica').insertAdjacentElement('afterbegin', caja);
+}
+
+/** El histograma base se muestrea UNA vez; después solo se transforma. */
+function muestrearPlaca() {
+  const img = $('preview-fondo');
+  const hacerlo = () => {
+    try {
+      histogramaBase = muestrearHistograma(img);
+      render();
+    } catch {
+      // Si el navegador bloquea la lectura del canvas, el histograma
+      // simplemente no aparece. No es motivo para romper la app.
+      histogramaBase = null;
+    }
+  };
+  if (img.complete && img.naturalWidth) hacerlo();
+  else img.addEventListener('load', hacerlo, { once: true });
+}
+
+/** Aplica un estado venido de la URL, si lo hay y es utilizable. */
+function aplicarEnlace() {
+  const compartido = deHash(location.hash, { escenasValidas: Object.keys(ESCENAS) });
+  if (!compartido) return false;
+  estado.escena = compartido.escena;
+  if (compartido.modo) {
+    estado.modo = compartido.modo;
+    document.body.dataset.modo = estado.modo;
+    $('switch-modo').setAttribute('aria-checked', String(estado.modo === 'pro'));
+    $('optica').hidden = estado.modo !== 'pro';
+  }
+  aplicarPreset();
+  const s = series(estado.modo);
+  if (compartido.apertura) estado.iApertura = masCercano(s.aperturas, compartido.apertura);
+  if (compartido.tiempo)   estado.iTiempo   = masCercano(s.tiempos, compartido.tiempo);
+  if (compartido.iso)      estado.iIso      = masCercano(s.isos, compartido.iso);
+  return true;
+}
+
 function iniciar() {
   iniciarPreview();
   iniciarSwitch();
   aplicarPreset();
+  aplicarEnlace();
   pintarEscenas();
+  montarWidgets();
   configurarSliders();
   conectar();
   conectarOptica();
   pintarContenido();
   inyectarFaqEstructurada();
+
+  visual = crearEstadoVisual(valores());
   render();
+  muestrearPlaca();
+
+  entrada({
+    hero: document.querySelector('.hero'),
+    escenas: $('escenas'),
+    visor: document.querySelector('.visor'),
+    controles: [...document.querySelectorAll('.control')]
+  });
 }
 
 document.addEventListener('DOMContentLoaded', iniciar);
