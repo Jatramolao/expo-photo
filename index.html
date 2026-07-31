@@ -29,6 +29,7 @@
 <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
+<div class="grano-pagina" aria-hidden="true"></div>
 <div class="page">
 
   <header class="header">
@@ -57,14 +58,27 @@
     <!-- El visor queda fijo al desplazarse: hay que poder ver el efecto
          mientras se mueven los sliders, o la herramienta no enseña nada. -->
     <div class="visor">
-      <div class="preview" id="preview">
-        <img id="preview-fondo"  class="preview-capa preview-fondo"  alt="">
-        <img id="preview-sujeto" class="preview-capa preview-sujeto" alt="Previsualización de la fotografía">
-        <div id="preview-grano"  class="preview-capa preview-grano" aria-hidden="true"></div>
+      <div class="marco">
+        <div class="preview" id="preview">
+          <img id="preview-fondo"  class="preview-capa preview-fondo"  alt="">
+          <img id="preview-sujeto" class="preview-capa preview-sujeto" alt="Previsualización de la fotografía">
+          <div id="preview-grano"  class="preview-capa preview-grano" aria-hidden="true"></div>
+          <span class="marco-esquina marco-esquina--si" aria-hidden="true"></span>
+          <span class="marco-esquina marco-esquina--sd" aria-hidden="true"></span>
+          <span class="marco-esquina marco-esquina--ii" aria-hidden="true"></span>
+          <span class="marco-esquina marco-esquina--id" aria-hidden="true"></span>
+        </div>
+        <!-- Banda de datos: la metadata técnica al pie del fotograma, como
+             en una hoja de contacto. El valor ya lo anuncian los sliders. -->
+        <p class="marco-datos" id="marco-datos" aria-hidden="true"></p>
       </div>
 
       <div class="fotometro" id="fotometro">
-        <div class="fotometro-escala"><div class="fotometro-aguja" id="fotometro-aguja"></div></div>
+        <div class="fotometro-escala">
+          <div class="fotometro-zona" aria-hidden="true"></div>
+          <div class="fotometro-marcas" id="fotometro-marcas" aria-hidden="true"></div>
+          <div class="fotometro-aguja" id="fotometro-aguja"></div>
+        </div>
         <p class="fotometro-lectura" id="fotometro-lectura"></p>
       </div>
     </div>

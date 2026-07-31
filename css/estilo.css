@@ -156,13 +156,17 @@ body {
 
 /* El alto está acotado a propósito, por la misma razón. El encuadre 4:5 al
    torso además hace el desenfoque más legible que un plano entero, porque
-   acerca el fondo al ojo. */
+   acerca el fondo al ojo.
+
+   El tope descuenta el cromo del marco, la banda de datos y la escala del
+   fotómetro: lo que tiene que caber junto a los sliders es el VISOR
+   entero, no solo la foto. */
 .preview {
   position: relative; width: 100%; aspect-ratio: 4 / 5;
-  max-height: 46vh;
+  max-height: 36vh;
   overflow: hidden; border: 2px solid var(--border-hi); background: #000;
 }
-@media (min-width: 720px) { .preview { max-height: 56vh; } }
+@media (min-width: 720px) { .preview { max-height: 46vh; } }
 .preview-capa { position: absolute; inset: 0; width: 100%; height: 100%;
                 object-fit: cover; object-position: center 22%; }
 
@@ -176,24 +180,6 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23r)' opacity='0.5'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
 }
-
-/* FOTÓMETRO */
-.fotometro { margin-top: 16px; }
-.fotometro-escala {
-  position: relative; height: 24px; border: 2px solid var(--border-hi);
-  background: linear-gradient(to right,
-    #000 0%, var(--surface) 40%, var(--accent) 50%, var(--violet) 60%, var(--violet) 100%);
-}
-.fotometro-aguja {
-  position: absolute; top: -4px; bottom: -4px; width: 4px;
-  background: var(--border-hi); transform: translateX(-50%);
-}
-.fotometro-lectura {
-  font-family: var(--font-mono); font-size: 11px;
-  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px;
-  color: var(--cuerpo);
-}
-.fotometro[data-veredicto="correcta"] .fotometro-lectura { color: var(--accent); }
 
 /* EQUIVALENCIAS */
 .equivalencias { display: grid; grid-template-columns: 1fr; gap: 0;
@@ -255,3 +241,94 @@ body {
 .histograma-caja { grid-column: 1 / -1; }
 .histograma { display: block; width: 100%; height: 32px;
               border: 1px solid var(--border); margin-top: 6px; }
+
+/* ── FOTÓMETRO COMO INSTRUMENTO ────────────────────────────────────────
+   Antes era un degradado liso que se leía como barra de progreso. Un
+   fotómetro real tiene escala con marcas de stop: eso lo convierte en
+   aparato y de paso le da unidad al desplazamiento de la aguja. */
+.fotometro { margin-top: 14px; }
+
+.fotometro-escala {
+  position: relative; height: 34px;
+  border: 2px solid var(--border-hi);
+  background: var(--surface);
+}
+
+/* La zona de exposición correcta: ±0,5 stops. Es la meta. */
+.fotometro-zona {
+  position: absolute; top: 0; bottom: 0;
+  left: calc(50% - 8.333%); width: 16.666%;
+  background: rgba(247, 168, 16, 0.16);
+  border-left: 1px solid var(--accent);
+  border-right: 1px solid var(--accent);
+}
+
+.fotometro-marcas { position: absolute; inset: 0; }
+.fotometro-marca {
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: var(--border); transform: translateX(-50%);
+}
+.fotometro-marca--cero { background: var(--accent); width: 2px; }
+.fotometro-marca span {
+  position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.04em;
+  color: var(--meta); background: var(--surface); padding: 0 3px;
+}
+.fotometro-marca--cero span { color: var(--accent); }
+
+.fotometro-aguja {
+  position: absolute; top: -5px; bottom: -5px; width: 3px;
+  background: var(--border-hi); transform: translateX(-50%);
+  box-shadow: 0 0 0 1px var(--bg);
+}
+
+.fotometro-lectura {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px;
+  color: var(--cuerpo);
+}
+.fotometro[data-veredicto="correcta"] .fotometro-lectura { color: var(--accent); }
+.fotometro[data-veredicto="correcta"] .fotometro-aguja   { background: var(--accent); }
+
+/* ── MARCO DE HOJA DE CONTACTO ────────────────────────────────────────
+   Regla de marca ya aplicada en presets-fotos y motion-obra: el fotograma
+   se enmarca como un negativo y la metadata técnica vive en la banda, en
+   IBM Plex Mono. */
+.marco { border: 1px solid var(--border); padding: 6px 6px 0; background: var(--bg); }
+
+.marco-esquina {
+  position: absolute; width: 12px; height: 12px; z-index: 4;
+  pointer-events: none; border: 0 solid var(--border-hi); opacity: 0.85;
+}
+.marco-esquina--si { top: 6px; left: 6px;  border-top-width: 2px; border-left-width: 2px; }
+.marco-esquina--sd { top: 6px; right: 6px; border-top-width: 2px; border-right-width: 2px; }
+.marco-esquina--ii { bottom: 6px; left: 6px;  border-bottom-width: 2px; border-left-width: 2px; }
+.marco-esquina--id { bottom: 6px; right: 6px; border-bottom-width: 2px; border-right-width: 2px; }
+
+.marco-datos {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+  color: var(--meta); text-transform: uppercase;
+  padding: 7px 2px 6px; display: flex; gap: 14px; flex-wrap: wrap;
+}
+.marco-datos b { color: var(--cuerpo); font-weight: 400; }
+
+/* ── LUZ DE CADA ESCENA ───────────────────────────────────────────────
+   Una franja cuyo brillo corresponde al EV de la escena: la rejilla
+   enseña el rango de luz antes de que el usuario toque nada. */
+.escena-btn { position: relative; padding-left: 20px; }
+.escena-btn::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px;
+  background: var(--luz, #444);
+  border-right: 1px solid var(--border-hi);
+}
+.escena-btn[aria-checked="true"]::before,
+.escena-btn:hover::before { border-right-color: var(--accent-fg); }
+
+/* ── GRANO DE PELÍCULA EN LA PÁGINA ───────────────────────────────────
+   Regla de marca aplicada ya en presets-fotos. Muy sutil: textura, no ruido. */
+.grano-pagina {
+  position: fixed; inset: 0; z-index: 999; pointer-events: none;
+  opacity: 0.035; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: reduce) { .grano-pagina { opacity: 0.02; } }

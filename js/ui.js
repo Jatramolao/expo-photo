@@ -89,6 +89,11 @@ function pintarEscenas() {
     btn.setAttribute('role', 'radio');
     btn.setAttribute('aria-checked', String(clave === estado.escena));
     btn.setAttribute('tabindex', clave === estado.escena ? '0' : '-1');
+    // La franja lateral lleva el brillo que corresponde al EV de la escena:
+    // la rejilla enseña el rango de luz antes de tocar nada. EV 3 (noche)
+    // queda casi negro; EV 15 (pleno sol), casi blanco.
+    const luz = Math.round(((e.ev - 3) / 12) * 205 + 25);
+    btn.style.setProperty('--luz', `rgb(${luz},${luz},${luz})`);
     btn.textContent = estado.modo === 'pro'
       ? `${e.nombrePro} · EV ${e.ev}`
       : e.nombreSimple;
@@ -146,6 +151,38 @@ function configurarSliders() {
     el.max = largo - 1;
     el.value = estado[campo];
   }
+}
+
+/**
+ * Escala del fotómetro: una marca por stop, de -3 a +3. Es lo que separa
+ * un instrumento de una barra de progreso, y le da unidad al recorrido de
+ * la aguja: sin marcas, se ve que se mueve pero no cuánto vale.
+ */
+function pintarMarcasFotometro() {
+  const cont = $('fotometro-marcas');
+  cont.innerHTML = '';
+  for (let s = -3; s <= 3; s++) {
+    const m = document.createElement('div');
+    m.className = 'fotometro-marca' + (s === 0 ? ' fotometro-marca--cero' : '');
+    m.style.left = `${((s + 3) / 6) * 100}%`;
+    const et = document.createElement('span');
+    et.textContent = s === 0 ? '0' : (s > 0 ? `+${s}` : `${s}`);
+    m.appendChild(et);
+    cont.appendChild(m);
+  }
+}
+
+/**
+ * Banda de datos al pie del fotograma, como en una hoja de contacto.
+ * Reúne en un solo sitio la metadata que hoy vive repartida.
+ */
+function pintarDatos(v, escena) {
+  $('marco-datos').innerHTML =
+    `<span><b>${formatearApertura(v.apertura)}</b></span>` +
+    `<span><b>${formatearTiempo(v.tiempo)}</b></span>` +
+    `<span><b>${formatearIso(v.iso)}</b></span>` +
+    `<span>EV <b>${escena.ev}</b></span>` +
+    `<span>${estado.focal} mm</span>`;
 }
 
 function iniciarPreview() {
@@ -308,11 +345,16 @@ function render({ animarAguja = false } = {}) {
   pintarLectura(r);
   pintarEquivalencias(r);
   pintarWidgets(v, r);
+  pintarDatos(v, escena);
   escribirHash({ ...valores(), escena: estado.escena, modo: estado.modo });
 }
 
 function pintarWidgets(v, r) {
   if (widgets.diafragma) actualizarDiafragma(widgets.diafragma, v.apertura);
+  // La rendija se repinta siempre: es información de reposo, no una animación.
+  if (widgets.cortinilla && !window.gsap?.isTweening?.(widgets.cortinilla.__arriba)) {
+    dispararCortinilla(widgets.cortinilla, v.tiempo, null, false);
+  }
   if (widgets.senal)     actualizarSenal(widgets.senal, v.iso);
   if (widgets.histograma && histogramaBase) {
     actualizarHistograma(widgets.histograma,
@@ -466,6 +508,7 @@ function iniciar() {
   aplicarPreset();
   aplicarEnlace();
   pintarEscenas();
+  pintarMarcasFotometro();
   montarWidgets();
   configurarSliders();
   conectar();

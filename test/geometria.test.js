@@ -4,7 +4,7 @@ import {
   aberturaDiafragma, puntosDiafragma,
   duracionCortinilla,
   formaSenal,
-  transformarHistograma,
+  transformarHistograma, rendijaObturador,
   aStops, deStops
 } from '../js/geometria.js';
 
@@ -143,4 +143,22 @@ test('sin cambio de exposición el histograma no se altera', () => {
   const base = new Array(64).fill(0).map((_, i) => i * 3);
   const igual = transformarHistograma(base, { brillo: 1, contraste: 1 });
   assert.deepEqual(igual, base);
+});
+
+test('la rendija del obturador se estrecha al subir la velocidad', () => {
+  // Un obturador de plano focal a alta velocidad no abre entero: forma una
+  // rendija que barre el sensor. Así el widget informa también en reposo.
+  assert.ok(rendijaObturador(1 / 4000) < rendijaObturador(1 / 250),
+    '1/4000 debe dar rendija más estrecha que 1/250');
+  assert.ok(rendijaObturador(1 / 250) < rendijaObturador(1 / 60),
+    '1/250 más estrecha que 1/60');
+});
+
+test('a velocidades lentas el obturador abre del todo', () => {
+  assert.ok(Math.abs(rendijaObturador(1 / 30) - 1) < 0.01);
+  assert.ok(Math.abs(rendijaObturador(1) - 1) < 0.01, 'y sigue abierto más allá');
+});
+
+test('la rendija nunca se cierra del todo', () => {
+  assert.ok(rendijaObturador(1 / 4000) > 0.05, 'siempre queda algo visible');
 });
