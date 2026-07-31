@@ -72,6 +72,21 @@ const CORTINILLA_MAX = 900;
  * literal: se ve que 1/30 dura mucho más que 1/1000, pero no en
  * proporción real.
  */
+/**
+ * Altura relativa (0-1) de la rendija del obturador.
+ *
+ * Un obturador de plano focal, por encima de la velocidad de sincronismo,
+ * no abre entero: forma una RENDIJA que barre el sensor, y cuanto más
+ * rápida la velocidad, más estrecha es. Eso hace que el widget informe
+ * también en reposo, en vez de ser un cuadrado muerto entre animaciones.
+ */
+export function rendijaObturador(tiempo) {
+  const min = Math.log2(1 / 4000);
+  const max = Math.log2(1 / 30);        // a 1/30 y más lento, abre entero
+  const f = (Math.log2(tiempo) - min) / (max - min);
+  return 0.08 + Math.min(Math.max(f, 0), 1) * 0.92;
+}
+
 export function duracionCortinilla(tiempo) {
   const min = Math.log2(1 / 4000);
   const max = Math.log2(30);

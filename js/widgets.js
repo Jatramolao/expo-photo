@@ -2,7 +2,7 @@
 // Consume geometria.js para toda la matemática. Único trabajo aquí: crear
 // y actualizar nodos SVG.
 
-import { puntosDiafragma, formaSenal, duracionCortinilla } from './geometria.js';
+import { puntosDiafragma, formaSenal, duracionCortinilla, rendijaObturador } from './geometria.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const LADO = 48;
@@ -69,26 +69,35 @@ export function crearCortinilla() {
   return s;
 }
 
+/** Coloca las cortinillas dejando la rendija que corresponde al tiempo. */
+function colocarRendija(s, tiempo) {
+  const alto = 40 * rendijaObturador(tiempo);   // el marco útil mide 40
+  const borde = (40 - alto) / 2;
+  s.__arriba.setAttribute('height', borde.toFixed(2));
+  s.__abajo.setAttribute('y', (4 + borde + alto).toFixed(2));
+  s.__abajo.setAttribute('height', borde.toFixed(2));
+}
+
 /**
- * Un solo ciclo al cambiar el valor, nunca un bucle: un bucle sería
- * movimiento permanente sin que el usuario lo provoque.
- * Devuelve la duración total para que motion.js pueda coordinar.
+ * En reposo el widget muestra la RENDIJA del obturador, que se estrecha al
+ * subir la velocidad: así informa siempre, no solo mientras se anima.
+ *
+ * Al cambiar el valor hace un solo ciclo —cierra del todo y vuelve a
+ * abrir— que es el disparo. Nunca un bucle: sería movimiento permanente
+ * sin que el usuario lo provoque.
  */
 export function dispararCortinilla(s, tiempo, gsap, animar = true) {
-  const total = duracionCortinilla(tiempo);
-  const apertura = total * 0.35;
-  gsap.killTweensOf([s.__arriba, s.__abajo]);
-  if (!animar) {
-    s.__arriba.setAttribute('height', 20);
-    s.__abajo.setAttribute('y', 24);
-    s.__abajo.setAttribute('height', 20);
+  if (gsap) gsap.killTweensOf([s.__arriba, s.__abajo]);
+  if (!animar || !gsap) {
+    colocarRendija(s, tiempo);
     return 0;
   }
-  const tl = gsap.timeline();
-  tl.to(s.__arriba, { attr: { height: 0 }, duration: apertura / 1000, ease: 'power3.in' }, 0)
-    .to(s.__abajo,  { attr: { y: 44, height: 0 }, duration: apertura / 1000, ease: 'power3.in' }, 0)
-    .to(s.__arriba, { attr: { height: 20 }, duration: apertura / 1000, ease: 'power3.out' }, (total - apertura) / 1000)
-    .to(s.__abajo,  { attr: { y: 24, height: 20 }, duration: apertura / 1000, ease: 'power3.out' }, (total - apertura) / 1000);
+  const total = duracionCortinilla(tiempo);
+  const mitad = (total * 0.4) / 1000;
+  const tl = gsap.timeline({ onComplete: () => colocarRendija(s, tiempo) });
+  tl.to([s.__arriba, s.__abajo], { attr: { height: 20 }, duration: mitad, ease: 'power3.in' }, 0)
+    .to(s.__abajo, { attr: { y: 24 }, duration: mitad, ease: 'power3.in' }, 0);
+  tl.call(() => colocarRendija(s, tiempo), null, mitad + (total * 0.2) / 1000);
   return total;
 }
 
